@@ -1,6 +1,8 @@
 # Planejamento do Projeto
 
-## Ozzy - Task Manager (Sistema de Gerenciamento de Tarefas Colaborativo)
+## Ozzy - Task Manager
+
+### Sistema Colaborativo de Gerenciamento de Projetos e Tarefas
 
 ---
 
@@ -8,11 +10,11 @@
 
 ## Objetivo
 
-Desenvolver uma aplicação web utilizando **Bubble.io (Plano Gratuito)** para gerenciamento de tarefas e comunicação entre membros de uma equipe.
+Desenvolver uma aplicação web utilizando **Bubble.io (Plano Gratuito)** para gerenciamento colaborativo de projetos, tarefas e comunicação entre membros de uma equipe.
 
-A aplicação deverá permitir que usuários autenticados criem, acompanhem e atualizem tarefas, além de registrar comentários e notificações relacionadas às atividades.
+A aplicação permitirá que usuários autenticados organizem projetos, criem e acompanhem tarefas, registrem comentários, recebam notificações e mantenham um histórico das atividades realizadas.
 
-O projeto será desenvolvido priorizando simplicidade, organização e boas práticas de modelagem de dados, atendendo aos requisitos propostos no desafio acadêmico.
+O projeto será desenvolvido priorizando simplicidade, organização, reutilização de componentes e boas práticas de modelagem de dados, utilizando exclusivamente recursos compatíveis com o plano gratuito do Bubble.
 
 ---
 
@@ -20,17 +22,17 @@ O projeto será desenvolvido priorizando simplicidade, organização e boas prá
 
 * Construir uma aplicação funcional utilizando Bubble.io.
 * Aplicar conceitos de desenvolvimento No-Code.
-* Utilizar banco de dados relacional.
+* Modelar uma estrutura de dados escalável.
 * Implementar workflows para automação das regras de negócio.
-* Desenvolver interface responsiva.
+* Desenvolver uma interface moderna e responsiva.
 * Publicar a aplicação.
-* Produzir documentação técnica e artefatos para portfólio.
+* Produzir documentação técnica completa para manutenção e evolução do sistema.
 
 ---
 
 # 3. Escopo do MVP
 
-O MVP contemplará apenas as funcionalidades necessárias para validar a proposta do sistema.
+O MVP contemplará apenas as funcionalidades essenciais para validar a proposta do sistema.
 
 ## Funcionalidades Incluídas
 
@@ -41,11 +43,28 @@ O MVP contemplará apenas as funcionalidades necessárias para validar a propost
 * Logout
 * Recuperação de senha
 
+---
+
+### Gerenciamento de Projetos
+
+* Visualizar projetos
+* Criar projetos
+* Editar projetos
+* Arquivar projetos
+* Definir proprietário do projeto
+
+> **Observação:** Caso seja necessário simplificar a implementação inicial, poderá ser utilizado um único projeto padrão ("Default"), mantendo a estrutura preparada para suportar múltiplos projetos futuramente.
+
+---
+
 ### Dashboard
 
-* Visualização das tarefas do usuário
-* Resumo por status
-* Lista das atividades recentes
+* Resumo das tarefas
+* Indicadores por status
+* Atividades recentes
+* Acesso rápido às principais funcionalidades
+
+---
 
 ### Gerenciamento de Tarefas
 
@@ -56,21 +75,37 @@ O MVP contemplará apenas as funcionalidades necessárias para validar a propost
 * Definir responsável
 * Definir prioridade
 * Definir data limite
+* Associar tarefa a um projeto
+
+---
 
 ### Comentários
 
-* Adicionar comentários em tarefas
-* Histórico de comentários
+* Adicionar comentários
+* Histórico de comentários por tarefa
+
+---
 
 ### Notificações
 
 * Notificações internas
 * Marcação como lida
+* Classificação por tipo de notificação
+
+---
+
+### Histórico de Atividades
+
+* Registrar automaticamente ações importantes da aplicação
+* Exibir timeline da tarefa
+
+---
 
 ### Perfil
 
 * Visualizar informações do usuário
-* Editar nome e foto de perfil
+* Editar nome
+* Editar avatar
 
 ---
 
@@ -80,13 +115,17 @@ As funcionalidades abaixo não fazem parte do MVP por aumentarem significativame
 
 * Chat em tempo real
 * Upload de arquivos
-* Integração com serviços externos
+* Integrações com serviços externos
 * Notificações Push
 * Aplicativo mobile
 * Controle avançado de permissões
-* Relatórios analíticos
-* Integração com calendário
+* Dashboard analítico avançado
 * API pública
+* Automações externas
+* Integração com calendário
+* Subtarefas
+* Etiquetas (Tags)
+* Dependência entre tarefas
 
 ---
 
@@ -106,39 +145,47 @@ O usuário autenticado poderá encerrar sua sessão (logout).
 
 ## RF04
 
-O sistema deverá permitir criar tarefas.
+O sistema deverá permitir visualizar e gerenciar projetos.
 
 ## RF05
 
-O sistema deverá permitir editar tarefas.
+O sistema deverá permitir criar tarefas vinculadas a um projeto.
 
 ## RF06
 
-O sistema deverá permitir excluir tarefas.
+O sistema deverá permitir editar tarefas.
 
 ## RF07
 
-Cada tarefa deverá possuir um responsável.
+O sistema deverá permitir excluir tarefas.
 
 ## RF08
 
-Cada tarefa deverá possuir um status.
+Cada tarefa deverá possuir um responsável.
 
 ## RF09
 
-Cada tarefa poderá receber comentários.
+Cada tarefa deverá possuir um status.
 
 ## RF10
 
-O sistema deverá registrar notificações relacionadas às tarefas.
+Cada tarefa poderá receber comentários.
 
 ## RF11
 
-O usuário poderá visualizar apenas suas notificações.
+O sistema deverá registrar notificações relacionadas às tarefas.
 
 ## RF12
 
+O usuário poderá visualizar apenas suas notificações.
+
+## RF13
+
 O dashboard deverá apresentar as tarefas do usuário.
+
+## RF14
+
+O sistema deverá registrar automaticamente o histórico das principais ações realizadas nas tarefas.
 
 ---
 
@@ -150,7 +197,9 @@ O dashboard deverá apresentar as tarefas do usuário.
 * Navegação simples e intuitiva.
 * Dados persistidos no banco nativo do Bubble.
 * Utilização exclusiva de recursos nativos sempre que possível.
-* Código organizado por boas práticas de Workflows.
+* Utilização de Option Sets para estados fixos da aplicação.
+* Organização dos workflows por domínio funcional.
+* Estrutura preparada para evolução futura.
 
 ---
 
@@ -162,25 +211,33 @@ Somente usuários autenticados poderão acessar o sistema.
 
 **RN02**
 
-Toda tarefa deverá possuir um responsável.
+Toda tarefa deverá estar vinculada a um projeto.
 
 **RN03**
 
-Toda tarefa deverá possuir um status.
+Toda tarefa deverá possuir um responsável.
 
 **RN04**
 
-Ao criar uma tarefa, deverá ser gerada uma notificação para o responsável.
+Toda tarefa deverá possuir um status.
 
 **RN05**
 
-Ao adicionar um comentário, deverá ser criada uma nova notificação.
+Ao criar uma tarefa, deverá ser gerada uma notificação para o responsável.
 
 **RN06**
 
-O usuário poderá marcar notificações como lidas.
+Ao adicionar um comentário, deverá ser criada uma nova notificação.
 
 **RN07**
+
+Toda alteração relevante deverá gerar um registro no histórico de atividades.
+
+**RN08**
+
+O usuário poderá marcar notificações como lidas.
+
+**RN09**
 
 Somente o criador da tarefa poderá excluí-la.
 
@@ -188,21 +245,24 @@ Somente o criador da tarefa poderá excluí-la.
 
 # 8. Backlog do Produto
 
-| ID   | História de Usuário                                              | Prioridade |
-| ---- | ---------------------------------------------------------------- | ---------- |
-| US01 | Como visitante, desejo criar uma conta para utilizar o sistema.  | Alta       |
-| US02 | Como usuário, desejo realizar login para acessar minhas tarefas. | Alta       |
-| US03 | Como usuário, desejo encerrar minha sessão.                      | Alta       |
-| US04 | Como usuário, desejo visualizar minhas tarefas.                  | Alta       |
-| US05 | Como usuário, desejo criar uma tarefa.                           | Alta       |
-| US06 | Como usuário, desejo editar uma tarefa.                          | Alta       |
-| US07 | Como usuário, desejo excluir uma tarefa.                         | Média      |
-| US08 | Como usuário, desejo alterar o status de uma tarefa.             | Alta       |
-| US09 | Como usuário, desejo definir um responsável para uma tarefa.     | Alta       |
-| US10 | Como usuário, desejo comentar em uma tarefa.                     | Alta       |
-| US11 | Como usuário, desejo visualizar minhas notificações.             | Média      |
-| US12 | Como usuário, desejo marcar notificações como lidas.             | Média      |
-| US13 | Como usuário, desejo editar meu perfil.                          | Baixa      |
+| ID   | História de Usuário                                                       | Prioridade |
+| ---- | ------------------------------------------------------------------------- | ---------- |
+| US01 | Como visitante, desejo criar uma conta para utilizar o sistema.           | Alta       |
+| US02 | Como usuário, desejo realizar login para acessar meus projetos e tarefas. | Alta       |
+| US03 | Como usuário, desejo encerrar minha sessão.                               | Alta       |
+| US04 | Como usuário, desejo visualizar meus projetos.                            | Média      |
+| US05 | Como usuário, desejo criar um projeto para organizar minhas tarefas.      | Média      |
+| US06 | Como usuário, desejo visualizar minhas tarefas.                           | Alta       |
+| US07 | Como usuário, desejo criar uma tarefa.                                    | Alta       |
+| US08 | Como usuário, desejo editar uma tarefa.                                   | Alta       |
+| US09 | Como usuário, desejo excluir uma tarefa.                                  | Média      |
+| US10 | Como usuário, desejo alterar o status de uma tarefa.                      | Alta       |
+| US11 | Como usuário, desejo definir um responsável para uma tarefa.              | Alta       |
+| US12 | Como usuário, desejo comentar em uma tarefa.                              | Alta       |
+| US13 | Como usuário, desejo visualizar minhas notificações.                      | Média      |
+| US14 | Como usuário, desejo marcar notificações como lidas.                      | Média      |
+| US15 | Como usuário, desejo visualizar o histórico de atividades de uma tarefa.  | Média      |
+| US16 | Como usuário, desejo editar meu perfil.                                   | Baixa      |
 
 ---
 
@@ -210,21 +270,22 @@ Somente o criador da tarefa poderá excluí-la.
 
 ## Sprint 1 — Fundação
 
+* Estrutura do banco de dados
 * Cadastro
 * Login
 * Logout
-* Estrutura do banco
 * Dashboard inicial
 
 ---
 
-## Sprint 2 — Gerenciamento de Tarefas
+## Sprint 2 — Projetos e Tarefas
 
-* Criar tarefas
-* Editar tarefas
-* Excluir tarefas
-* Alterar status
-* Responsável
+* Gerenciamento de projetos
+* Criação de tarefas
+* Edição de tarefas
+* Exclusão de tarefas
+* Alteração de status
+* Definição de responsável
 
 ---
 
@@ -232,14 +293,15 @@ Somente o criador da tarefa poderá excluí-la.
 
 * Comentários
 * Notificações
-* Perfil
+* Histórico de atividades
+* Perfil do usuário
 
 ---
 
 ## Sprint 4 — Finalização
 
 * Ajustes visuais
-* Testes
+* Testes funcionais
 * Correções
 * Publicação
 * Documentação
@@ -254,11 +316,13 @@ O MVP será considerado concluído quando:
 * O usuário conseguir criar uma conta.
 * O usuário conseguir realizar login.
 * O usuário conseguir realizar logout.
-* O usuário conseguir criar tarefas.
+* O usuário conseguir visualizar seus projetos.
+* O usuário conseguir criar tarefas vinculadas a um projeto.
 * O usuário conseguir editar tarefas.
 * O usuário conseguir alterar o status das tarefas.
 * O usuário conseguir comentar em tarefas.
-* O sistema registrar notificações.
+* O sistema registrar notificações automaticamente.
+* O sistema registrar o histórico das principais ações das tarefas.
 * O dashboard apresentar corretamente as tarefas do usuário.
 * A aplicação estiver publicada no Bubble.
 
@@ -266,12 +330,13 @@ O MVP será considerado concluído quando:
 
 # 11. Riscos do Projeto
 
-| Risco                        | Impacto | Mitigação                                     |
-| ---------------------------- | ------- | --------------------------------------------- |
-| Limitações do plano gratuito | Médio   | Utilizar apenas recursos nativos              |
-| Retrabalho na modelagem      | Alto    | Definir banco de dados antes da implementação |
-| Workflows complexos          | Médio   | Desenvolver e testar incrementalmente         |
-| Falta de tempo               | Alto    | Priorizar apenas o MVP                        |
+| Risco                          | Impacto | Mitigação                                              |
+| ------------------------------ | ------- | ------------------------------------------------------ |
+| Limitações do plano gratuito   | Médio   | Utilizar apenas recursos nativos do Bubble             |
+| Retrabalho na modelagem        | Alto    | Validar a estrutura do banco antes da implementação    |
+| Workflows complexos            | Médio   | Desenvolver e testar incrementalmente                  |
+| Crescimento do escopo          | Alto    | Priorizar exclusivamente o MVP                         |
+| Inconsistência entre artefatos | Médio   | Manter a documentação sincronizada com a implementação |
 
 ---
 
@@ -281,7 +346,7 @@ Após a aprovação deste planejamento, serão produzidos os seguintes documento
 
 1. Modelagem do Banco de Dados.
 2. Arquitetura da Aplicação.
-3. Fluxograma dos Workflows.
+3. Especificação dos Workflows.
 4. Wireframes das Telas.
 5. Plano de Testes.
 6. README do Projeto.

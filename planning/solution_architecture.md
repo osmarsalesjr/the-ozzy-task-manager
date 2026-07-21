@@ -2,76 +2,78 @@
 
 # Ozzy - Task Manager
 
-**Versão:** 1.0 (MVP)
+**Versão:** 2.0 (MVP)
 **Plataforma:** Bubble.io (Plano Gratuito)
 
 ---
 
 # 1. Objetivo
 
-Este documento descreve a arquitetura da solução do **Ozzy - Task Manager**, estabelecendo a organização estrutural da aplicação, os componentes reutilizáveis, a navegação entre páginas, a estratégia de autenticação e as convenções de desenvolvimento adotadas.
+Este documento descreve a arquitetura da solução do **Ozzy - Task Manager**, estabelecendo a organização estrutural da aplicação, a arquitetura de dados, os componentes reutilizáveis, a navegação entre páginas, a estratégia de autenticação, a organização dos workflows e as convenções de desenvolvimento adotadas.
 
-O objetivo é fornecer um guia para implementação e manutenção da aplicação, garantindo consistência e reduzindo retrabalho durante o desenvolvimento.
+O objetivo é fornecer um guia técnico para implementação, manutenção e evolução da aplicação, garantindo consistência entre todos os artefatos do projeto.
 
 ---
 
 # 2. Visão Geral da Arquitetura
 
-O Ozzy - Task Manager será desenvolvido utilizando exclusivamente recursos nativos do Bubble.io.
+O **Ozzy - Task Manager** será desenvolvido utilizando exclusivamente recursos nativos do Bubble.io, mantendo compatibilidade com o plano gratuito da plataforma.
 
-A arquitetura seguirá uma abordagem modular baseada em:
+A arquitetura foi projetada seguindo princípios de modularidade, baixo acoplamento e escalabilidade.
 
-* Banco de dados nativo do Bubble;
-* Páginas independentes;
-* Componentes reutilizáveis (Reusable Elements);
-* Workflows organizados por responsabilidade;
-* Option Sets para valores fixos;
-* Navegação controlada por autenticação.
+A solução é composta pelas seguintes camadas:
 
-A lógica de negócio será concentrada nos Workflows, enquanto as páginas serão responsáveis apenas pela apresentação e interação com o usuário.
+* Autenticação
+* Banco de Dados
+* Option Sets
+* Workflows
+* Interface (Pages)
+* Componentes Reutilizáveis
+
+Toda a lógica de negócio será implementada através dos Workflows do Bubble, mantendo as páginas responsáveis apenas pela interação com o usuário.
 
 ---
 
 # 3. Arquitetura Geral
 
 ```text
-                   +---------------------------+
-                   |        Bubble.io          |
-                   +---------------------------+
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        │                      │                      │
-        ▼                      ▼                      ▼
-+----------------+    +----------------+    +----------------+
-| Authentication |    |   Database     |    |   Option Sets  |
-| (User nativo)  |    |                |    |                |
-+----------------+    +----------------+    +----------------+
-                               │
-                               ▼
-                    +-----------------------+
-                    |      Workflows        |
-                    +-----------------------+
-                               │
-                               ▼
-                    +-----------------------+
-                    |      Pages (UI)       |
-                    +-----------------------+
-                               │
-                               ▼
-                    +-----------------------+
-                    | Reusable Components   |
-                    +-----------------------+
+                    Bubble.io
+                         │
+        ┌────────────────┼────────────────┐
+        │                │                │
+        ▼                ▼                ▼
+ Authentication      Database       Option Sets
+        │                │                │
+        │                ▼                │
+        │         Project ────────────────┐
+        │              │                  │
+        │              ▼                  │
+        │            Task                 │
+        │        ┌────┼────┐              │
+        │        ▼    ▼    ▼              │
+        │   Comment Notification ActivityLog
+        │                │
+        └────────────────▼
+               Workflows
+                    │
+                    ▼
+              Pages (UI)
+                    │
+                    ▼
+         Reusable Components
 ```
 
 ---
 
 # 4. Organização da Aplicação
 
-A aplicação será dividida em cinco camadas lógicas.
+A aplicação será dividida em seis camadas lógicas.
+
+---
 
 ## Camada de Autenticação
 
-Responsável pelo acesso dos usuários.
+Responsável pelo controle de acesso dos usuários.
 
 Utiliza exclusivamente o sistema nativo do Bubble.
 
@@ -89,12 +91,29 @@ Responsabilidades:
 
 Responsável pelo armazenamento das informações.
 
-Entidades principais:
+Entidades:
 
 * User
+* Project
 * Task
 * Comment
 * Notification
+* ActivityLog
+
+---
+
+## Camada de Option Sets
+
+Responsável pelos valores fixos da aplicação.
+
+Option Sets:
+
+* UserRole
+* ProjectStatus
+* TaskStatus
+* TaskPriority
+* NotificationType
+* ActivityAction
 
 ---
 
@@ -104,11 +123,13 @@ Implementada através dos Workflows.
 
 Responsável por:
 
-* Criar tarefas
-* Atualizar tarefas
+* Gerenciar projetos
+* Gerenciar tarefas
 * Gerenciar comentários
-* Criar notificações
+* Gerenciar notificações
+* Registrar histórico de atividades
 * Validar permissões
+* Automatizar regras de negócio
 
 ---
 
@@ -116,17 +137,42 @@ Responsável por:
 
 Responsável pela experiência do usuário.
 
-Cada página possui uma responsabilidade específica.
+Cada página possui uma responsabilidade única.
 
 ---
 
 ## Componentes Reutilizáveis
 
-Responsáveis por padronizar elementos utilizados em diversas páginas.
+Responsáveis por padronizar elementos compartilhados entre as páginas.
 
 ---
 
-# 5. Estrutura das Páginas
+# 5. Arquitetura dos Dados
+
+```text
+User
+ │
+ ├──────────────► Project
+ │                    │
+ │                    ▼
+ │                  Task
+ │                ┌──┼──┐
+ │                ▼  ▼  ▼
+ │         Comment Notification ActivityLog
+```
+
+Relacionamentos principais:
+
+* Um User pode ser proprietário de vários Projects.
+* Um Project possui várias Tasks.
+* Cada Task pertence a um único Project.
+* Uma Task pode possuir vários Comments.
+* Uma Task pode gerar várias Notifications.
+* Toda alteração importante gera um ActivityLog.
+
+---
+
+# 6. Estrutura das Páginas
 
 ```text
 Login
@@ -137,13 +183,16 @@ Login
 │
 └── Dashboard
       │
-      ├── My Tasks
-      │
-      ├── Task Details
-      │
-      ├── New Task
-      │
-      ├── Edit Task
+      ├── Projects
+      │      │
+      │      └── Project Details
+      │              │
+      │              ├── My Tasks
+      │              │      │
+      │              │      └── Task Details
+      │              │
+      │              ├── New Task
+      │              └── Edit Task
       │
       ├── Notifications
       │
@@ -152,15 +201,11 @@ Login
 
 ---
 
-# 6. Descrição das Páginas
+# 7. Descrição das Páginas
 
 ## Login
 
-Responsável pela autenticação.
-
-Funções:
-
-* Login
+* Autenticação
 * Navegação para cadastro
 * Recuperação de senha
 
@@ -182,25 +227,50 @@ Solicitação de redefinição de senha.
 
 Página inicial da aplicação.
 
-Exibe:
+Apresenta:
 
-* Resumo das tarefas
-* Indicadores
-* Atividades recentes
-* Atalhos
+* resumo geral;
+* indicadores;
+* atividades recentes;
+* acesso rápido aos projetos.
+
+---
+
+## Projects
+
+Lista todos os projetos do usuário.
+
+Permite:
+
+* visualizar;
+* criar;
+* editar;
+* arquivar projetos.
+
+---
+
+## Project Details
+
+Exibe informações do projeto.
+
+Permite acessar:
+
+* tarefas;
+* membros (evolução futura);
+* indicadores.
 
 ---
 
 ## My Tasks
 
-Lista todas as tarefas do usuário.
+Lista todas as tarefas do projeto.
 
 Permite:
 
 * pesquisar;
-* filtrar por status;
-* filtrar por prioridade;
-* ordenar resultados.
+* filtrar;
+* ordenar;
+* acessar detalhes.
 
 ---
 
@@ -210,16 +280,16 @@ Apresenta todas as informações da tarefa.
 
 Inclui:
 
-* dados da tarefa;
+* descrição;
 * comentários;
-* histórico de alterações;
-* ações disponíveis.
+* notificações;
+* histórico de atividades.
 
 ---
 
 ## New Task
 
-Formulário para criação de tarefas.
+Criação de tarefas.
 
 ---
 
@@ -231,50 +301,59 @@ Atualização das informações da tarefa.
 
 ## Notifications
 
-Lista todas as notificações do usuário.
+Central de notificações do usuário.
 
 ---
 
 ## Profile
 
-Informações pessoais do usuário.
+Informações do usuário.
 
 ---
 
-# 7. Componentes Reutilizáveis
+# 8. Componentes Reutilizáveis
 
-Para manter consistência visual e facilitar manutenção, os seguintes componentes deverão ser implementados como **Reusable Elements**.
+Todos os componentes compartilhados deverão ser implementados como **Reusable Elements**.
 
 ## Header
 
-Responsável por:
-
-* logotipo;
-* menu principal;
-* perfil do usuário;
-* notificações.
+* logotipo
+* menu principal
+* perfil
+* notificações
 
 ---
 
 ## Sidebar
 
-Menu de navegação.
-
 Itens:
 
 * Dashboard
-* Minhas Tarefas
-* Nova Tarefa
-* Notificações
-* Perfil
+* Projects
+* My Tasks
+* Notifications
+* Profile
+
+---
+
+## Project Card
+
+Representação resumida de um projeto.
+
+Exibe:
+
+* nome;
+* status;
+* quantidade de tarefas;
+* cor do projeto.
 
 ---
 
 ## Task Card
 
-Representação resumida de uma tarefa.
+Representação resumida da tarefa.
 
-Informações:
+Exibe:
 
 * título;
 * prioridade;
@@ -286,32 +365,41 @@ Informações:
 
 ## Comment Card
 
-Componente utilizado para exibir comentários.
+Exibição de comentários.
 
 ---
 
 ## Notification Card
 
-Representação visual das notificações.
+Exibição de notificações.
+
+---
+
+## Activity Card
+
+Exibição do histórico de atividades.
+
+---
+
+## Dashboard Widget
+
+Componente reutilizável para indicadores.
 
 ---
 
 ## Confirmation Modal
 
-Utilizado para:
-
-* exclusões;
-* ações irreversíveis.
+Utilizado para ações irreversíveis.
 
 ---
 
 ## Empty State
 
-Exibido quando não houver informações para apresentar.
+Componente exibido quando não houver registros.
 
 ---
 
-# 8. Fluxo de Navegação
+# 9. Fluxo de Navegação
 
 ```text
 Login
@@ -319,25 +407,29 @@ Login
    ▼
 Dashboard
    │
-   ├────────────► My Tasks
-   │                  │
-   │                  ▼
-   │            Task Details
-   │                  │
-   │                  ├────► Edit Task
-   │                  │
-   │                  └────► Comments
+   ├────────► Projects
+   │             │
+   │             ▼
+   │      Project Details
+   │             │
+   │             ▼
+   │         My Tasks
+   │             │
+   │             ▼
+   │       Task Details
+   │             │
+   │     ┌───────┴────────┐
+   │     ▼                ▼
+   │ Edit Task      Comments
    │
-   ├────────────► New Task
+   ├────────► Notifications
    │
-   ├────────────► Notifications
-   │
-   └────────────► Profile
+   └────────► Profile
 ```
 
 ---
 
-# 9. Estratégia de Autenticação
+# 10. Estratégia de Autenticação
 
 A autenticação será baseada exclusivamente no sistema nativo do Bubble.
 
@@ -345,16 +437,16 @@ Fluxo:
 
 1. Usuário realiza login.
 2. Bubble valida as credenciais.
-3. Sessão é criada automaticamente.
-4. Usuário é direcionado ao Dashboard.
-5. Páginas privadas validam a existência de um usuário autenticado.
-6. O logout encerra a sessão e redireciona para a página de Login.
+3. A sessão é criada automaticamente.
+4. O usuário é direcionado ao Dashboard.
+5. Todas as páginas privadas verificam a existência de um usuário autenticado.
+6. O logout encerra a sessão e redireciona para Login.
 
 ---
 
-# 10. Organização dos Workflows
+# 11. Organização dos Workflows
 
-Os Workflows deverão ser agrupados por domínio funcional.
+Os workflows deverão ser agrupados por domínio funcional.
 
 ## Authentication
 
@@ -362,6 +454,14 @@ Os Workflows deverão ser agrupados por domínio funcional.
 * Logout
 * Sign Up
 * Forgot Password
+
+---
+
+## Projects
+
+* Create Project
+* Update Project
+* Archive Project
 
 ---
 
@@ -385,7 +485,13 @@ Os Workflows deverão ser agrupados por domínio funcional.
 ## Notifications
 
 * Create Notification
-* Mark as Read
+* Mark Notification Read
+
+---
+
+## Activity Log
+
+* Register Activity
 
 ---
 
@@ -395,17 +501,19 @@ Os Workflows deverão ser agrupados por domínio funcional.
 
 ---
 
-# 11. Convenção de Nomenclatura
+# 12. Convenção de Nomenclatura
 
 ## Páginas
 
-Utilizar nomes curtos e em inglês.
+Utilizar nomes curtos em inglês.
 
 Exemplos:
 
 * login
 * signup
 * dashboard
+* projects
+* project_details
 * my_tasks
 * task_details
 * notifications
@@ -425,9 +533,11 @@ Exemplos:
 
 * re_header
 * re_sidebar
+* re_project_card
 * re_task_card
 * re_comment_card
 * re_notification_card
+* re_activity_card
 
 ---
 
@@ -439,12 +549,6 @@ Prefixo:
 grp_
 ```
 
-Exemplos:
-
-* grp_filters
-* grp_task_details
-* grp_comments
-
 ---
 
 ## Popups
@@ -454,11 +558,6 @@ Prefixo:
 ```text
 pop_
 ```
-
-Exemplos:
-
-* pop_delete_task
-* pop_edit_task
 
 ---
 
@@ -470,11 +569,6 @@ Prefixo:
 inp_
 ```
 
-Exemplos:
-
-* inp_title
-* inp_description
-
 ---
 
 ## Botões
@@ -484,12 +578,6 @@ Prefixo:
 ```text
 btn_
 ```
-
-Exemplos:
-
-* btn_save
-* btn_cancel
-* btn_delete
 
 ---
 
@@ -501,63 +589,64 @@ Prefixo:
 rg_
 ```
 
-Exemplos:
-
-* rg_tasks
-* rg_comments
-* rg_notifications
-
 ---
 
 ## Workflows
 
-Utilizar verbo + objeto.
+Utilizar sempre:
+
+**Verbo + Objeto**
 
 Exemplos:
 
 * Create Task
 * Update Task
-* Delete Task
-* Create Comment
+* Archive Project
+* Register Activity
 * Mark Notification Read
 
 ---
 
-# 12. Boas Práticas
+# 13. Boas Práticas
 
 Durante o desenvolvimento deverão ser observadas as seguintes diretrizes:
 
-* Utilizar apenas recursos nativos sempre que possível.
+* Utilizar apenas recursos nativos do Bubble sempre que possível.
 * Evitar duplicação de Workflows.
-* Manter componentes reutilizáveis desacoplados.
 * Centralizar regras de negócio nos Workflows.
 * Utilizar Option Sets para valores fixos.
-* Nomear elementos de forma consistente.
+* Manter componentes reutilizáveis desacoplados.
 * Evitar lógica complexa diretamente na interface.
-* Validar permissões antes de executar ações críticas.
+* Utilizar relacionamentos entre Data Types em vez de duplicação de dados.
+* Nomear todos os elementos seguindo as convenções definidas.
+* Registrar automaticamente ações importantes através da entidade ActivityLog.
+* Validar permissões antes da execução de qualquer operação crítica.
 
 ---
 
-# 13. Arquitetura de Evolução
+# 14. Arquitetura de Evolução
 
-A arquitetura foi planejada para permitir futuras expansões sem necessidade de reestruturação significativa.
+A arquitetura foi projetada para suportar futuras expansões sem necessidade de remodelagem significativa.
 
-Evoluções previstas incluem:
+Evoluções previstas:
 
-* Projetos (Projects);
-* Etiquetas (Tags);
-* Subtarefas (Subtasks);
-* Equipes (Teams);
-* Anexos (Attachments);
-* Histórico de atividades (Activity Log);
-* Dashboard analítico;
-* Integração com APIs externas;
-* Aplicação mobile.
+* Equipes (Teams)
+* Etiquetas (Tags)
+* Subtarefas (Subtasks)
+* Dependências entre tarefas
+* Anexos (Attachments)
+* Dashboard analítico
+* Integração com APIs externas
+* Aplicação mobile
+* Quadro Kanban com drag-and-drop
+* Automações e notificações externas
 
 ---
 
-# 14. Conclusão
+# 15. Conclusão
 
-A arquitetura proposta para o **Ozzy - Task Manager** prioriza simplicidade, reutilização de componentes e aderência às boas práticas do Bubble.io.
+A arquitetura proposta para o **Ozzy - Task Manager** foi projetada para equilibrar simplicidade, organização e escalabilidade, aproveitando ao máximo os recursos nativos do Bubble.io.
 
-A separação entre dados, workflows, interface e componentes reutilizáveis reduz o acoplamento da aplicação, facilita sua manutenção e permite que novas funcionalidades sejam incorporadas de forma incremental, preservando a organização do projeto ao longo de sua evolução.
+A separação entre autenticação, dados, Option Sets, workflows, interface e componentes reutilizáveis reduz o acoplamento da aplicação, facilita sua manutenção e prepara o sistema para futuras evoluções sem comprometer o MVP.
+
+Toda a documentação da solução foi estruturada para servir como referência durante a implementação e para garantir consistência entre o planejamento, a modelagem de dados, os workflows e a interface do sistema.

@@ -2,347 +2,988 @@
 
 # Ozzy - Task Manager
 
-**Versão:** 1.0
+**Versão:** 2.0
 **Plataforma:** Bubble.io (Plano Gratuito)
 
 ---
 
 # 1. Objetivo
 
-Este documento define a estratégia de testes do **Ozzy - Task Manager**, estabelecendo os critérios para validação das funcionalidades implementadas durante o desenvolvimento.
+Este documento define a estratégia de testes do **Ozzy - Task Manager**, considerando a estrutura atualmente implementada no Bubble.io.
 
-O objetivo é garantir que a aplicação atenda aos requisitos funcionais, não funcionais e regras de negócio definidos para o MVP.
+O objetivo é validar:
+
+* funcionalidades;
+* workflows;
+* regras de negócio;
+* permissões por perfil;
+* Privacy Rules;
+* persistência dos dados;
+* navegação;
+* notificações;
+* histórico de atividades;
+* comportamento da interface;
+* responsividade.
+
+A validação deverá considerar principalmente os dois perfis existentes:
+
+* **Administrator**
+* **Member**
 
 ---
 
 # 2. Escopo dos Testes
 
-Serão validados:
+Serão validados os seguintes módulos:
 
-* Autenticação
-* Gerenciamento de Projetos
-* Gerenciamento de Tarefas
-* Comentários
-* Notificações
-* Histórico de Atividades
-* Perfil do Usuário
-* Dashboard
-* Navegação
-* Responsividade
-
----
-
-# 3. Estratégia de Testes
-
-A validação será realizada em quatro níveis.
-
-## Testes Funcionais
-
-Verificam se cada funcionalidade atende ao comportamento esperado.
+* Autenticação;
+* Projetos;
+* Tarefas;
+* Comentários;
+* Notificações;
+* Histórico de atividades;
+* Usuários;
+* Perfil;
+* Dashboard;
+* Navegação;
+* Permissões;
+* Privacy Rules;
+* Responsividade.
 
 ---
 
-## Testes de Interface
+# 3. Perfis de Teste
+
+## Administrator
+
+Deve possuir acesso às funcionalidades administrativas, incluindo:
+
+* gerenciamento de usuários;
+* criação de projetos;
+* edição de projetos;
+* arquivamento de tarefas;
+* gerenciamento ampliado do histórico;
+* gerenciamento de comentários conforme as regras implementadas.
+
+---
+
+## Member
+
+Deve possuir acesso às funcionalidades operacionais permitidas pelo sistema, incluindo:
+
+* visualização de projetos;
+* acesso às tarefas;
+* edição das informações permitidas;
+* alteração de status;
+* criação e gerenciamento dos próprios comentários;
+* visualização das próprias notificações;
+* atualização do próprio perfil.
+
+---
+
+# 4. Estratégia de Testes
+
+A validação será realizada em cinco níveis.
+
+## 4.1 Testes Funcionais
+
+Validam se cada funcionalidade produz o resultado esperado.
+
+---
+
+## 4.2 Testes de Regras de Negócio
 
 Validam:
 
-* Layout
-* Componentes
-* Responsividade
-* Navegação
+* obrigatoriedade de campos;
+* status;
+* prioridades;
+* responsáveis;
+* arquivamento;
+* geração de ActivityLog;
+* geração de Notification;
+* comportamento por perfil.
 
 ---
 
-## Testes de Regras de Negócio
+## 4.3 Testes de Permissão
 
-Verificam:
+Validam as diferenças entre:
 
-* Permissões
-* Validações
-* Estados
-* Fluxos
-
----
-
-## Testes de Integração
-
-Validam o funcionamento conjunto entre:
-
-* Interface
-* Workflows
-* Banco de Dados
-* Option Sets
+* Administrator;
+* Member;
+* usuário não autenticado.
 
 ---
 
-# 4. Ambiente de Testes
+## 4.4 Testes de Integração
+
+Validam a interação entre:
+
+* Interface;
+* Workflows;
+* Data Types;
+* Option Sets;
+* Privacy Rules;
+* ActivityLog;
+* Notification.
+
+---
+
+## 4.5 Testes de Interface
+
+Validam:
+
+* layout;
+* navegação;
+* estados vazios;
+* popups;
+* filtros;
+* mensagens;
+* responsividade;
+* componentes reutilizáveis.
+
+---
+
+# 5. Ambiente de Testes
 
 ## Plataforma
 
-Bubble.io
-
----
+Bubble.io.
 
 ## Navegadores
 
-* Google Chrome
-* Microsoft Edge
-
----
+* Google Chrome;
+* Microsoft Edge.
 
 ## Dispositivos
 
-* Desktop
-* Tablet
-* Smartphone
+* Desktop;
+* Tablet;
+* Smartphone.
+
+## Contas necessárias
+
+Recomenda-se utilizar pelo menos:
+
+* 1 usuário Administrator;
+* 2 usuários Member;
+* 1 usuário não autenticado.
 
 ---
 
-# 5. Casos de Teste
+# 6. Casos de Teste — Autenticação
 
 ## CT-001 — Cadastro de Usuário
 
 ### Objetivo
 
-Validar o cadastro de um novo usuário.
-
-### Pré-condição
-
-Usuário não autenticado.
+Validar a criação de uma nova conta.
 
 ### Passos
 
-1. Acessar Sign Up.
-2. Informar nome.
-3. Informar e-mail válido.
-4. Informar senha.
-5. Confirmar senha.
-6. Clicar em Criar Conta.
+1. Acessar a página `auth`.
+2. Informar os dados obrigatórios.
+3. Confirmar a senha.
+4. Criar a conta.
 
 ### Resultado Esperado
 
-* Usuário criado.
-* Login automático.
-* Redirecionamento para Dashboard.
+* Usuário criado;
+* usuário autenticado conforme o fluxo implementado;
+* acesso às páginas permitidas;
+* role definida conforme a regra de criação.
 
 ---
 
 ## CT-002 — Login
 
-### Objetivo
+### Resultado Esperado
 
-Validar autenticação.
+* Credenciais válidas autenticam o usuário;
+* usuário é direcionado para a aplicação.
+
+---
+
+## CT-003 — Login Inválido
+
+### Resultado Esperado
+
+* Usuário não autenticado;
+* mensagem de erro apresentada;
+* acesso às páginas privadas bloqueado.
+
+---
+
+## CT-004 — Logout
+
+### Resultado Esperado
+
+* Sessão encerrada;
+* usuário direcionado para `auth`;
+* páginas privadas não devem permanecer acessíveis.
+
+---
+
+## CT-005 — Recuperação de Senha
+
+### Resultado Esperado
+
+* E-mail de recuperação enviado;
+* popup de confirmação exibido;
+* usuário consegue iniciar o processo de redefinição.
+
+---
+
+# 7. Casos de Teste — Projetos
+
+## CT-006 — Criar Projeto
+
+### Pré-condição
+
+Usuário Administrator.
 
 ### Passos
 
-1. Informar e-mail.
-2. Informar senha.
-3. Clicar em Entrar.
+1. Acessar `projects`.
+2. Selecionar **Novo Projeto**.
+3. Informar nome.
+4. Informar descrição.
+5. Definir status.
+6. Salvar.
 
 ### Resultado Esperado
 
-Usuário autenticado.
+Projeto criado com:
+
+* `owner = CurrentUser`;
+* `archived = false`;
+* status informado.
+
+O projeto deve aparecer na listagem.
 
 ---
 
-## CT-003 — Logout
+## CT-007 — Criar Projeto sem Nome
 
 ### Resultado Esperado
 
-Sessão encerrada.
-
-Usuário redirecionado para Login.
+* Projeto não criado;
+* formulário permanece aberto;
+* usuário deve corrigir o campo obrigatório.
 
 ---
 
-## CT-004 — Criar Projeto
+## CT-008 — Editar Projeto
+
+### Resultado Esperado
+
+* Popup de edição aberto;
+* dados atuais carregados;
+* alterações persistidas;
+* ActivityLog `project_updated` registrado quando aplicável.
+
+---
+
+## CT-009 — Arquivar Projeto
+
+### Resultado Esperado
+
+* Status alterado para `Archived`;
+* projeto deixa de aparecer nas listagens onde apenas projetos ativos são exibidos.
+
+---
+
+## CT-010 — Member Acessando Criação de Projeto
+
+### Resultado Esperado
+
+* Botão **Novo Projeto** não deve estar disponível;
+* tentativa de execução direta do workflow deve ser bloqueada pela condição de permissão.
+
+---
+
+# 8. Casos de Teste — Tarefas
+
+## CT-011 — Criar Tarefa
 
 ### Passos
 
-1. Novo Projeto.
-2. Informar nome.
-3. Salvar.
+1. Acessar um projeto.
+2. Abrir **Nova Tarefa**.
+3. Informar título.
+4. Informar descrição.
+5. Selecionar prioridade.
+6. Selecionar responsável.
+7. Informar data limite.
+8. Salvar.
 
 ### Resultado Esperado
 
-Projeto criado.
+Task criada com:
 
-Status inicial:
+* projeto correto;
+* responsável correto;
+* status inicial `To Do`;
+* `archived = false`.
 
-Active
+Também devem ser criados:
 
-Owner:
-
-Current User
+* ActivityLog `task_created`;
+* Notification para o responsável, quando o responsável for diferente do usuário que criou a tarefa.
 
 ---
 
-## CT-005 — Editar Projeto
+## CT-012 — Criar Tarefa sem Título
 
 ### Resultado Esperado
 
-Informações atualizadas corretamente.
+* Task não criada;
+* formulário permanece aberto.
 
 ---
 
-## CT-006 — Arquivar Projeto
+## CT-013 — Editar Tarefa
 
 ### Resultado Esperado
 
-Projeto arquivado.
+Os campos permitidos são atualizados corretamente.
 
-Não aparece na listagem principal.
+Deve ser criado:
+
+* ActivityLog `task_updated`;
+* Notification para o responsável quando aplicável.
 
 ---
 
-## CT-007 — Criar Tarefa
-
-### Passos
-
-1. Selecionar projeto.
-2. Informar título.
-3. Informar responsável.
-4. Salvar.
+## CT-014 — Alterar Status da Tarefa
 
 ### Resultado Esperado
 
-* Task criada.
-* ActivityLog criado.
+* Status atualizado;
+* ActivityLog registrado;
+* Notification criada quando aplicável.
+
+A alteração deve funcionar tanto:
+
+* na página `tasks`, pelo popup de alteração rápida;
+* na página `task`, pelo popup de alteração de status.
+
+---
+
+## CT-015 — Alterar Status para Done
+
+### Resultado Esperado
+
+* Status = `Done`;
+* `completed_date` deve ser preenchida conforme a regra implementada.
+
+---
+
+## CT-016 — Alterar Responsável
+
+### Resultado Esperado
+
+* `assigned_to` atualizado;
+* ActivityLog `assignee_changed` quando o fluxo correspondente for executado;
+* Notification criada para o novo responsável quando aplicável.
+
+---
+
+## CT-017 — Arquivar Tarefa
+
+### Pré-condição
+
+Usuário Administrator.
+
+### Resultado Esperado
+
+* `archived = true`;
+* tarefa deixa de aparecer nas listagens operacionais;
+* dados permanecem persistidos;
+* ActivityLog `task_archived` criado;
+* usuário retorna à página do projeto.
+
+---
+
+## CT-018 — Member Tentando Arquivar Tarefa
+
+### Resultado Esperado
+
+* Botão de exclusão/arquivamento não deve estar disponível;
+* workflow não deve executar para Member.
+
+---
+
+# 9. Casos de Teste — Listagem de Tarefas
+
+## CT-019 — Filtrar por Status
+
+### Resultado Esperado
+
+O `rg_tasks` deve exibir somente tarefas correspondentes ao status selecionado.
+
+---
+
+## CT-020 — Filtrar por Prioridade
+
+### Resultado Esperado
+
+Somente tarefas da prioridade selecionada devem ser exibidas.
+
+---
+
+## CT-021 — Filtrar por Projeto
+
+### Resultado Esperado
+
+Somente tarefas pertencentes ao projeto selecionado devem ser exibidas.
+
+---
+
+## CT-022 — Pesquisar Tarefa
+
+### Resultado Esperado
+
+A lista deve ser filtrada pelo título da tarefa conforme o texto informado.
+
+---
+
+## CT-023 — Limpar Filtros
+
+### Resultado Esperado
+
+O botão **Limpar Filtros** deve resetar:
+
+* status;
+* prioridade;
+* projeto;
+* campo de pesquisa.
+
+---
+
+## CT-024 — Alteração Rápida de Status
+
+### Resultado Esperado
+
+* Popup `pop_quick_status` aberto;
+* tarefa selecionada corretamente;
+* novo status persistido;
+* ActivityLog criado;
 * Notification criada.
 
 ---
 
-## CT-008 — Editar Tarefa
+# 10. Casos de Teste — Comentários
+
+## CT-025 — Adicionar Comentário
 
 ### Resultado Esperado
 
-Dados atualizados corretamente.
+Comment criado contendo:
+
+* `author = CurrentUser`;
+* `task = tarefa atual`;
+* mensagem informada;
+* `archived = no`.
+
+Também devem ser criados:
+
+* ActivityLog `comment_added`;
+* Notification para o responsável quando aplicável.
 
 ---
 
-## CT-009 — Excluir Tarefa
+## CT-026 — Adicionar Comentário Vazio
 
 ### Resultado Esperado
 
-Task removida.
-
-ActivityLog registrado.
+Comentário não criado.
 
 ---
 
-## CT-010 — Alterar Status
+## CT-027 — Editar Comentário Próprio
 
 ### Resultado Esperado
 
-Status atualizado.
-
-Se Done:
-
-completed_date preenchida.
-
-ActivityLog criado.
+* Autor consegue editar seu comentário;
+* mensagem atualizada;
+* ActivityLog criado.
 
 ---
 
-## CT-011 — Alterar Responsável
+## CT-028 — Editar Comentário de Outro Usuário
 
 ### Resultado Esperado
 
-assigned_to atualizado.
-
-Nova Notification criada.
+Member não consegue editar comentário pertencente a outro usuário.
 
 ---
 
-## CT-012 — Adicionar Comentário
+## CT-029 — Arquivar Comentário Próprio
 
 ### Resultado Esperado
 
-Comment criado.
-
-ActivityLog criado.
-
-Notification criada.
+* comentário marcado como arquivado;
+* comentário deixa de aparecer na listagem operacional;
+* registro original permanece no banco.
 
 ---
 
-## CT-013 — Editar Comentário
+## CT-030 — Administrator Arquivar Comentário
 
 ### Resultado Esperado
 
-Comentário atualizado.
+Administrator consegue arquivar comentários conforme a regra implementada.
 
 ---
 
-## CT-014 — Excluir Comentário
+# 11. Casos de Teste — Notificações
+
+## CT-031 — Criar Notification
+
+Validar a criação automática de notificações em eventos aplicáveis.
+
+Devem ser validados especialmente:
+
+* nova tarefa;
+* alteração de tarefa;
+* alteração de status;
+* novo comentário;
+* alteração de responsável.
+
+---
+
+## CT-032 — Visualizar Notificações
 
 ### Resultado Esperado
 
-Comentário removido.
+O usuário deve visualizar somente notificações cujo:
+
+```text
+recipient = CurrentUser
+```
 
 ---
 
-## CT-015 — Marcar Notificação como Lida
+## CT-033 — Marcar Notification como Lida
 
 ### Resultado Esperado
 
-is_read = yes
+Ao clicar em uma notificação:
+
+* `is_read = true`;
+* se houver tarefa vinculada, navegar para a página `task`;
+* se não houver tarefa vinculada, permanecer na central de notificações.
 
 ---
 
-## CT-016 — Atualizar Perfil
+## CT-034 — Marcar Todas como Lidas
 
 ### Resultado Esperado
 
-Nome e avatar atualizados.
+Todas as notificações não lidas do usuário devem receber:
+
+```text
+is_read = true
+```
 
 ---
 
-# 6. Testes das Regras de Negócio
+## CT-035 — Acessar Notification de Outro Usuário
 
-| Código | Regra                                                 | Resultado Esperado               |
-| ------ | ----------------------------------------------------- | -------------------------------- |
-| RN-01  | Apenas usuários autenticados acessam páginas privadas | Acesso negado para visitantes    |
-| RN-02  | Todo projeto possui proprietário                      | Owner preenchido automaticamente |
-| RN-03  | Toda tarefa pertence a um projeto                     | Não permitir salvar sem projeto  |
-| RN-04  | Toda tarefa possui responsável                        | Campo obrigatório                |
-| RN-05  | Alterações importantes geram ActivityLog              | Registro criado automaticamente  |
-| RN-06  | Comentários geram Notification                        | Notificação criada               |
-| RN-07  | Apenas usuários autorizados alteram dados             | Operação bloqueada               |
+### Resultado Esperado
+
+O usuário não deve conseguir visualizar ou manipular notificações pertencentes a outro usuário.
 
 ---
 
-# 7. Testes das Privacy Rules
+# 12. Casos de Teste — Histórico de Atividades
+
+## CT-036 — Registrar Criação de Tarefa
+
+### Resultado Esperado
+
+ActivityLog criado com:
+
+```text
+action = task_created
+```
+
+---
+
+## CT-037 — Registrar Atualização de Tarefa
+
+### Resultado Esperado
+
+ActivityLog:
+
+```text
+action = task_updated
+```
+
+---
+
+## CT-038 — Registrar Alteração de Status
+
+### Resultado Esperado
+
+ActivityLog relacionado à alteração de status criado corretamente.
+
+---
+
+## CT-039 — Registrar Comentário
+
+### Resultado Esperado
+
+ActivityLog:
+
+```text
+action = comment_added
+```
+
+---
+
+## CT-040 — Registrar Arquivamento
+
+Validar os eventos:
+
+```text
+task_archived
+```
+
+e demais ações de arquivamento implementadas.
+
+---
+
+## CT-041 — Visualizar Atividades como Member
+
+### Resultado Esperado
+
+Member deve visualizar somente os registros permitidos pela implementação atual.
+
+---
+
+## CT-042 — Visualizar Atividades como Administrator
+
+### Resultado Esperado
+
+Administrator deve visualizar a visão administrativa disponível na página `activities`.
+
+---
+
+## CT-043 — Filtrar Atividades
+
+Validar filtros por:
+
+* ação;
+* usuário;
+* projeto;
+* pesquisa textual.
+
+O botão **Limpar Filtros** deve restaurar a listagem original.
+
+---
+
+## CT-044 — Visualizar Detalhes da Atividade
+
+### Resultado Esperado
+
+Ao selecionar uma atividade:
+
+* popup `pop_activity_details` é exibido;
+* descrição;
+* ação;
+* tarefa;
+* usuário;
+* data;
+* identificador
+
+são apresentados corretamente.
+
+---
+
+# 13. Casos de Teste — Usuários
+
+## CT-045 — Visualizar Usuários
+
+### Pré-condição
+
+Administrator.
+
+### Resultado Esperado
+
+Administrator consegue visualizar a lista de usuários.
+
+---
+
+## CT-046 — Filtrar Usuários por Nome
+
+### Resultado Esperado
+
+Lista filtrada pelo nome pesquisado.
+
+---
+
+## CT-047 — Filtrar Usuários por Role
+
+### Resultado Esperado
+
+Lista filtrada por:
+
+* Administrator;
+* Member.
+
+---
+
+## CT-048 — Criar Usuário Administrativo
+
+### Pré-condição
+
+Administrator.
+
+### Resultado Esperado
+
+* novo User criado;
+* dados persistidos;
+* e-mail de definição de senha enviado;
+* confirmação apresentada.
+
+---
+
+## CT-049 — Editar Usuário
+
+### Resultado Esperado
+
+Administrator consegue editar os campos permitidos do usuário.
+
+O e-mail do usuário existente não deve ser alterado pelo fluxo atual.
+
+---
+
+## CT-050 — Member Acessando Gestão de Usuários
+
+### Resultado Esperado
+
+* funcionalidades administrativas não disponíveis;
+* botões de criação/edição ocultos;
+* workflow protegido por condição de role.
+
+---
+
+# 14. Casos de Teste — Perfil
+
+## CT-051 — Atualizar Nome
+
+### Resultado Esperado
+
+Nome do usuário atualizado.
+
+---
+
+## CT-052 — Cancelar Alteração de Perfil
+
+### Resultado Esperado
+
+Campos retornam aos valores persistidos.
+
+---
+
+## CT-053 — Alterar Avatar
+
+### Resultado Esperado
+
+No estado atual, o controle de alteração de foto encontra-se desabilitado. O teste deve confirmar que a funcionalidade não pode ser executada.
+
+---
+
+## CT-054 — Redefinir Senha pelo Perfil
+
+### Resultado Esperado
+
+* e-mail de redefinição enviado;
+* popup de confirmação exibido.
+
+---
+
+# 15. Casos de Teste — Dashboard
+
+## CT-055 — Carregar Dashboard
 
 Validar:
 
-* Usuário acessa apenas seus próprios dados.
-* Usuário visualiza apenas suas notificações.
-* Usuário não altera registros sem permissão.
-* Dados sensíveis não ficam expostos.
+* carregamento da página;
+* projetos apresentados;
+* tarefas apresentadas;
+* atividades recentes;
+* navegação para os módulos.
+
+O elemento `grp_dashboard_metrics` não faz parte da versão atual e não deve ser considerado requisito de teste.
 
 ---
 
-# 8. Testes de Interface
+# 16. Testes de Navegação
+
+Validar os principais fluxos:
+
+```text
+auth
+  ↓
+dashboard
+  ↓
+projects
+  ↓
+project
+  ↓
+task
+```
+
+E também:
+
+```text
+dashboard
+ ├── tasks
+ ├── notifications
+ ├── activities
+ ├── users
+ └── profile
+```
+
+Validar também:
+
+* projeto → tarefa;
+* tarefa → projeto;
+* notificação → tarefa;
+* atividade → detalhes;
+* logout → auth.
+
+---
+
+# 17. Testes de Privacy Rules
+
+Validar explicitamente os Data Types:
+
+## User
+
+* dados públicos disponíveis conforme configuração;
+* dados privados protegidos.
+
+## Project
+
+* acesso de leitura conforme configuração;
+* operações administrativas protegidas.
+
+## Task
+
+* criador com permissões previstas;
+* responsável com permissões limitadas;
+* demais usuários somente com acesso permitido.
+
+## Comment
+
+* autor pode manipular seu próprio comentário;
+* demais usuários possuem somente o acesso previsto.
+
+## Notification
+
+* somente o destinatário deve acessar suas notificações.
+
+## ActivityLog
+
+* acesso deve respeitar as regras de visibilidade definidas para Member e Administrator.
+
+---
+
+# 18. Testes de Option Sets
+
+Validar os valores utilizados pela aplicação.
+
+## UserRole
+
+* Administrator;
+* Member.
+
+## ProjectStatus
+
+* Active;
+* Archived.
+
+## TaskStatus
+
+* To Do;
+* In Progress;
+* Blocked;
+* Done.
+
+## TaskPriority
+
+* Low;
+* Medium;
+* High;
+* Critical.
+
+## ActivityAction
+
+Validar os eventos atualmente utilizados, incluindo:
+
+* `task_created`;
+* `task_updated`;
+* `task_deleted`;
+* `status_changed`;
+* `comment_added`;
+* `assignee_changed`;
+* `notification_created`;
+* `project_updated`;
+* `task_archived`;
+* `user_updated`;
+* `role_user_updated`.
+
+## CommentStatus
+
+Validar:
+
+* `yes`;
+* `no`.
+
+O Option Set representa o estado de arquivamento do comentário.
+
+---
+
+# 19. Testes de Interface
 
 Verificar:
 
-* Alinhamento dos componentes.
-* Espaçamentos.
-* Consistência visual.
-* Estados vazios.
-* Mensagens de erro.
-* Mensagens de sucesso.
-* Modais.
-* Navegação.
+* alinhamento;
+* espaçamento;
+* tipografia;
+* cores;
+* bordas;
+* estados vazios;
+* filtros;
+* popups;
+* botões;
+* campos obrigatórios;
+* feedback de ações;
+* navegação;
+* comportamento dos cards.
+
+Também devem ser validados os componentes reutilizáveis:
+
+* `re_header`;
+* `re_sidebar`;
+* cards de projeto;
+* cards de tarefa;
+* cards de comentário;
+* cards de notificação;
+* cards de atividade.
 
 ---
 
-# 9. Testes de Responsividade
+# 20. Testes de Responsividade
 
 ## Desktop
 
-Validar todas as funcionalidades.
+Validar integralmente todas as funcionalidades.
 
 ---
 
@@ -350,151 +991,273 @@ Validar todas as funcionalidades.
 
 Verificar:
 
-* Sidebar recolhida.
-* Componentes reorganizados.
+* comportamento da sidebar;
+* dimensionamento dos cards;
+* filtros;
+* tabelas/listagens;
+* popups.
 
 ---
 
 ## Mobile
 
-Validar:
-
-* Menu responsivo.
-* Cards empilhados.
-* Botões acessíveis.
-* Formulários utilizáveis.
-
----
-
-# 10. Testes de Performance
-
 Verificar:
 
-* Tempo de login.
-* Tempo de carregamento do Dashboard.
-* Tempo de carregamento das listas.
-* Tempo para salvar registros.
+* navegação;
+* menu;
+* filtros;
+* formulários;
+* cards;
+* botões;
+* leitura de textos;
+* popups.
 
 ---
 
-# 11. Critérios de Aprovação
+# 21. Testes de Performance
+
+Validar qualitativamente:
+
+* tempo de carregamento das páginas;
+* carregamento das listas;
+* aplicação dos filtros;
+* abertura dos popups;
+* salvamento de registros;
+* atualização das listas após workflows;
+* carregamento das notificações.
+
+Especial atenção deve ser dada às buscas realizadas pelos Repeating Groups.
+
+---
+
+# 22. Testes de Integridade dos Workflows
+
+Após cada operação crítica, verificar o conjunto de efeitos esperados.
+
+### Criar tarefa
+
+```text
+Task
+  ↓
+ActivityLog
+  ↓
+Notification
+  ↓
+Atualização da interface
+```
+
+### Alterar status
+
+```text
+Task
+  ↓
+ActivityLog
+  ↓
+Notification
+  ↓
+Atualização da interface
+```
+
+### Adicionar comentário
+
+```text
+Comment
+  ↓
+ActivityLog
+  ↓
+Notification
+  ↓
+Atualização da lista
+```
+
+### Arquivar tarefa
+
+```text
+Task.archived = true
+  ↓
+ActivityLog.task_archived
+  ↓
+Navegação para Project
+```
+
+---
+
+# 23. Testes de Estados e Arquivamento
+
+Validar que registros arquivados não apareçam indevidamente nas listagens operacionais.
+
+Testar:
+
+* projetos arquivados;
+* tarefas arquivadas;
+* comentários arquivados.
+
+Também validar que o arquivamento não remove fisicamente o registro do banco.
+
+---
+
+# 24. Critérios de Aprovação
 
 Uma funcionalidade será considerada aprovada quando:
 
-* Todos os casos de teste forem executados.
-* Nenhum erro crítico permanecer aberto.
-* As regras de negócio forem atendidas.
-* As Privacy Rules funcionarem corretamente.
-* Os dados forem persistidos corretamente.
-* A interface apresentar comportamento consistente.
+* comportamento esperado estiver implementado;
+* workflow executar corretamente;
+* dados forem persistidos;
+* permissões forem respeitadas;
+* ActivityLog for criado quando aplicável;
+* Notification for criada quando aplicável;
+* interface refletir a alteração;
+* nenhum defeito crítico permanecer aberto.
 
 ---
 
-# 12. Registro de Defeitos
+# 25. Registro de Defeitos
 
 Cada defeito identificado deverá conter:
 
-* Código
-* Descrição
-* Tela afetada
-* Passos para reprodução
-* Resultado obtido
-* Resultado esperado
-* Prioridade
-* Responsável
-* Status
+* Código;
+* Descrição;
+* Página;
+* Elemento afetado;
+* Perfil afetado;
+* Passos para reprodução;
+* Resultado obtido;
+* Resultado esperado;
+* Prioridade;
+* Responsável;
+* Status.
+
+Sugestão de prioridades:
+
+* **Crítica** — impede o uso do sistema;
+* **Alta** — impede uma funcionalidade importante;
+* **Média** — afeta parcialmente a experiência;
+* **Baixa** — problema visual ou de baixo impacto.
 
 ---
 
-# 13. Checklist de Validação Final
+# 26. Checklist de Validação Final
 
 ## Autenticação
 
 * [ ] Cadastro
 * [ ] Login
+* [ ] Login inválido
 * [ ] Logout
 * [ ] Recuperação de senha
 
----
-
 ## Projetos
 
-* [ ] Criar
-* [ ] Editar
-* [ ] Arquivar
-
----
+* [ ] Listagem
+* [ ] Filtros
+* [ ] Criar projeto
+* [ ] Editar projeto
+* [ ] Arquivar projeto
+* [ ] Permissões de Administrator
 
 ## Tarefas
 
-* [ ] Criar
-* [ ] Editar
-* [ ] Excluir
+* [ ] Listagem
+* [ ] Pesquisa
+* [ ] Filtro por status
+* [ ] Filtro por prioridade
+* [ ] Filtro por projeto
+* [ ] Criar tarefa
+* [ ] Editar tarefa
 * [ ] Alterar status
 * [ ] Alterar responsável
-
----
+* [ ] Arquivar tarefa
+* [ ] Permissões
 
 ## Comentários
 
 * [ ] Criar
-* [ ] Editar
-* [ ] Excluir
-
----
+* [ ] Editar próprio
+* [ ] Impedir edição indevida
+* [ ] Arquivar
+* [ ] ActivityLog
 
 ## Notificações
 
-* [ ] Criar
+* [ ] Criação automática
+* [ ] Visualização
 * [ ] Marcar como lida
-
----
+* [ ] Marcar todas como lidas
+* [ ] Navegação para tarefa
+* [ ] Privacy Rules
 
 ## Histórico
 
-* [ ] ActivityLog criado corretamente
+* [ ] Registro de criação
+* [ ] Registro de atualização
+* [ ] Registro de status
+* [ ] Registro de comentário
+* [ ] Registro de arquivamento
+* [ ] Filtros
+* [ ] Detalhes
+* [ ] Visão Member
+* [ ] Visão Administrator
 
----
+## Usuários
+
+* [ ] Listagem
+* [ ] Busca
+* [ ] Filtro por role
+* [ ] Criar usuário
+* [ ] Editar usuário
+* [ ] Restrição para Member
 
 ## Perfil
 
-* [ ] Atualizar nome
-* [ ] Atualizar avatar
-
----
+* [ ] Editar nome
+* [ ] Cancelar edição
+* [ ] E-mail somente leitura
+* [ ] Avatar desabilitado
+* [ ] Redefinição de senha
 
 ## Dashboard
 
-* [ ] Indicadores corretos
-* [ ] Projetos carregados
-* [ ] Tarefas carregadas
-* [ ] Atividades recentes carregadas
-
----
+* [ ] Carregamento
+* [ ] Projetos
+* [ ] Tarefas
+* [ ] Atividades
+* [ ] Navegação
+* [ ] Ausência de `grp_dashboard_metrics`
 
 ## Interface
 
-* [ ] Responsividade
+* [ ] Desktop
+* [ ] Tablet
+* [ ] Mobile
+* [ ] Popups
+* [ ] Empty states
+* [ ] Filtros
 * [ ] Navegação
-* [ ] Mensagens
-* [ ] Componentes reutilizáveis
 
 ---
 
-# 14. Critérios para Conclusão do MVP
+# 27. Critérios para Conclusão do MVP
 
-O MVP será considerado concluído quando:
+O MVP será considerado validado quando:
 
-* Todos os requisitos funcionais estiverem implementados.
-* Todos os casos de teste estiverem aprovados.
-* Não existirem defeitos críticos ou bloqueadores.
-* A aplicação estiver publicada no Bubble.io.
-* A documentação estiver atualizada.
+* todas as funcionalidades implementadas tiverem sido testadas;
+* os fluxos principais estiverem funcionando;
+* Administrator e Member possuírem os acessos corretos;
+* as Privacy Rules estiverem validadas;
+* os Workflows persistirem os dados corretamente;
+* ActivityLogs forem gerados conforme os eventos implementados;
+* Notifications forem geradas conforme as regras implementadas;
+* registros arquivados não apareçam indevidamente nas listagens;
+* não existirem defeitos críticos ou bloqueadores;
+* a aplicação estiver pronta para publicação;
+* a documentação estiver sincronizada com a implementação.
 
 ---
 
-# 15. Considerações Finais
+# 28. Considerações Finais
 
-Este Plano de Testes estabelece o processo oficial de validação do **Ozzy - Task Manager**.
+Este documento representa o plano oficial de testes do **Ozzy - Task Manager** na sua estrutura atual.
 
-Todos os testes deverão ser executados antes da publicação do MVP, garantindo que a aplicação atenda aos requisitos definidos no planejamento, arquitetura e modelagem de dados, assegurando qualidade, estabilidade e consistência da solução.
+A execução dos testes deve acompanhar a implementação dos módulos e ser repetida após alterações relevantes nos Data Types, Option Sets, Privacy Rules, Workflows ou componentes reutilizáveis.
+
+O objetivo não é apenas verificar se cada tela funciona isoladamente, mas garantir a consistência entre **interface, dados, permissões, workflows, notificações e histórico de atividades**.

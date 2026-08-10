@@ -2,581 +2,908 @@
 
 # Ozzy - Task Manager
 
-**Versão:** 1.0
+**Versão:** 2.0 (MVP)
 **Plataforma:** Bubble.io (Plano Gratuito)
 
 ---
 
 # 1. Objetivo
 
-Este documento define a especificação funcional das telas do **Ozzy - Task Manager**.
+Este documento define a especificação funcional das telas atualmente implementadas no **Ozzy - Task Manager**.
 
-Cada tela descreve:
+A especificação considera a estrutura real da aplicação, incluindo:
 
-* Objetivo;
-* Componentes visuais;
-* Fonte dos dados;
-* Ações disponíveis;
-* Workflows associados;
-* Regras de visibilidade;
-* Critérios de navegação.
+* páginas;
+* componentes reutilizáveis;
+* Repeating Groups;
+* popups;
+* fontes de dados;
+* ações disponíveis;
+* regras de visibilidade;
+* navegação;
+* comportamentos específicos por perfil de usuário.
 
-O objetivo é padronizar a implementação da interface e garantir consistência durante o desenvolvimento da aplicação.
+O documento deve servir como referência para manutenção, testes e evolução da interface.
 
 ---
 
-# 2. Estrutura de Navegação
+# 2. Estrutura Atual da Aplicação
+
+A aplicação atualmente utiliza as seguintes páginas principais:
 
 ```text
-Login
+auth
 │
-├── Sign Up
-├── Forgot Password
+├── Cadastro
+└── Recuperação de senha
+
+index
 │
-└── Dashboard
-      │
-      ├── Projects
-      │      │
-      │      └── Project Details
-      │               │
-      │               ├── My Tasks
-      │               │      │
-      │               │      └── Task Details
-      │               │
-      │               ├── New Task (Popup)
-      │               └── Edit Task (Popup)
-      │
-      ├── Notifications
-      │
-      └── Profile
+├── Meus Projetos
+│   └── project
+│
+├── Minhas Tarefas Pendentes
+│   └── tasks
+│
+├── Atividades Recentes
+│   └── Popup de detalhes
+│
+└── Atalhos
+
+project
+│
+├── Informações do projeto
+├── Lista de tarefas
+├── Nova tarefa
+├── Editar projeto
+└── Editar tarefa
+
+tasks
+│
+├── Lista de tarefas
+├── Filtros
+├── Acesso à tarefa
+├── Acesso ao projeto
+└── Alteração rápida de status
+
+task
+│
+├── Informações da tarefa
+├── Comentários
+├── Histórico
+├── Edição
+└── Exclusão
+
+activities
+│
+├── Atividades do usuário
+├── Atividades administrativas
+├── Filtros
+└── Detalhes da atividade
+
+notifications
+│
+├── Lista de notificações
+└── Marcação como lida
+
+reset_pw
+│
+└── Redefinição de senha
+
+404
+│
+└── Página de recurso não encontrado
+```
+
+## A aplicação utiliza `re_header` e `re_sidebar` como componentes compartilhados nas páginas autenticadas.
+
+# 3. Elementos Reutilizáveis
+
+## 3.1 `re_header`
+
+Header compartilhado das páginas autenticadas.
+
+Responsabilidades:
+
+* identificação da aplicação;
+* navegação;
+* acesso ao perfil;
+* acesso às notificações;
+* ações globais do usuário.
+
+---
+
+## 3.2 `re_sidebar`
+
+Menu lateral compartilhado.
+
+Possui estado interno para controle de colapso da navegação.
+
+Principais áreas:
+
+* Dashboard;
+* Tarefas;
+* Notificações;
+* Atividades;
+* demais destinos disponíveis conforme a implementação atual.
+
+A sidebar possui estado `is_collapsed`, permitindo alternar entre a versão expandida e compacta.
+
+---
+
+# 4. Página `auth`
+
+## Objetivo
+
+Centralizar a autenticação dos usuários.
+
+## Funcionalidades
+
+* Login;
+* cadastro;
+* recuperação de senha;
+* redirecionamento para o Dashboard após autenticação.
+
+## Regras
+
+* Usuários não autenticados podem acessar a página.
+* Usuários autenticados devem ser direcionados para `index`.
+
+---
+
+# 5. Página `index`
+
+## Objetivo
+
+Atuar como **Dashboard principal** da aplicação.
+
+A página concentra as principais informações operacionais do usuário, eliminando a necessidade de uma página independente de projetos para o MVP.
+
+## Estrutura
+
+```text
+grp_page_wrapper
+│
+├── grp_header
+│   └── re_header
+│
+└── grp_body
+    │
+    ├── grp_sidebar
+    │   └── re_sidebar
+    │
+    └── grp_content
+        │
+        └── grp_dashboard_content_wrapper
+            │
+            ├── grp_dashboard_title
+            │
+            └── SectionsWrapper
+                ├── grp_projects_section
+                ├── grp_tasks_section
+                └── grp_activity_section
 ```
 
 ---
 
-# 3. Tela: Login
+## 5.1 Seção Meus Projetos
 
-## Objetivo
+### Elementos
 
-Permitir que usuários autenticados acessem a aplicação.
+* `grp_projects_section`
+* `grp_projects_header`
+* `NewProjectBtn`
+* `rg_projects`
+* `grp_projects_empty_state`
 
-## Componentes
+### Fonte de dados
 
-* Logo
-* Campo de e-mail
-* Campo de senha
-* Botão Entrar
-* Link Criar Conta
-* Link Esqueci minha senha
+`Project`
 
-## Fonte de Dados
-
-Não aplicável.
-
-## Workflows
-
-* WF-001 — Login
-* Navegação para Sign Up
-* Navegação para Forgot Password
-
-## Regras
-
-* Não permitir acesso ao Dashboard sem autenticação.
-* Caso o usuário já esteja autenticado, redirecionar automaticamente para o Dashboard.
-
----
-
-# 4. Tela: Sign Up
-
-## Objetivo
-
-Cadastrar novos usuários.
-
-## Componentes
-
-* Nome
-* E-mail
-* Senha
-* Confirmar senha
-* Botão Criar Conta
-
-## Fonte de Dados
-
-User (nativo do Bubble)
-
-## Workflows
-
-* WF-001 — Cadastro de Usuário
-
-## Regras
-
-Todo novo usuário deverá possuir:
-
-* role = Member
-
----
-
-# 5. Tela: Forgot Password
-
-## Objetivo
-
-Permitir recuperação de senha.
-
-## Componentes
-
-* Campo de e-mail
-* Botão Enviar
-
-## Workflows
-
-* WF-004 — Recuperação de Senha
-
----
-
-# 6. Tela: Dashboard
-
-## Objetivo
-
-Apresentar uma visão geral da aplicação.
-
-## Componentes
-
-* Header
-* Sidebar
-* Cards de indicadores
-* Projetos recentes
-* Tarefas pendentes
-* Atividades recentes
-
-## Indicadores
-
-* Projetos ativos
-* Tarefas pendentes
-* Tarefas concluídas
-* Notificações não lidas
-
-## Fonte dos Dados
-
-* Project
-* Task
-* Notification
-* ActivityLog
-
-## Workflows
-
-Atualização automática após alterações.
-
----
-
-# 7. Tela: Projects
-
-## Objetivo
-
-Gerenciar os projetos do usuário.
-
-## Componentes
-
-* Lista de projetos
-* Campo de pesquisa
-* Botão Novo Projeto
-* Filtro por status
-
-## Repeating Group
-
-Project
-
-## Campos exibidos
-
-* Nome
-* Cor
-* Status
-* Quantidade de tarefas
-
-## Workflows
-
-* Criar Projeto
-* Editar Projeto
-* Arquivar Projeto
-
-## Navegação
-
-Selecionar projeto abre:
-
-Project Details
-
----
-
-# 8. Tela: Project Details
-
-## Objetivo
-
-Exibir informações completas de um projeto.
-
-## Componentes
-
-* Nome
-* Descrição
-* Cor
-* Status
-* Indicadores
-* Lista de tarefas
-
-## Fonte
-
-Project selecionado.
-
-## Indicadores
-
-* Total de tarefas
-* Pendentes
-* Em andamento
-* Concluídas
-
-## Workflows
-
-* Atualizar Projeto
-* Arquivar Projeto
-
----
-
-# 9. Tela: My Tasks
-
-## Objetivo
-
-Exibir as tarefas pertencentes ao projeto.
-
-## Componentes
-
-* Pesquisa
-* Filtro por status
-* Filtro por prioridade
-* Ordenação
-* Lista de tarefas
-
-## Fonte
-
-Task
-
-Filtradas pelo projeto atual.
-
-## Campos exibidos
-
-* Título
-* Prioridade
-* Status
-* Responsável
-* Data limite
-
-## Workflows
-
-* Criar
-* Editar
-* Excluir
-* Alterar status
-
----
-
-# 10. Tela: Task Details
-
-## Objetivo
-
-Exibir todas as informações da tarefa.
-
-## Componentes
-
-### Informações gerais
-
-* Título
-* Descrição
-* Projeto
-* Prioridade
-* Status
-* Responsável
-* Data limite
-
-### Comentários
-
-Repeating Group
-
-Comment
-
-### Histórico
-
-Repeating Group
-
-ActivityLog
+A lista apresenta projetos ativos associados ao usuário atual e é ordenada pela data de criação.
 
 ### Ações
 
-* Editar
-* Alterar status
-* Excluir
+* abrir projeto;
+* criar novo projeto.
 
-## Workflows
+### Permissão
 
-* Atualizar Task
-* Alterar Status
-* Adicionar Comentário
+O botão de criação de projeto é apresentado conforme a regra de role atualmente configurada, com acesso para administradores.
 
 ---
 
-# 11. Popup: Nova Tarefa
+# 6. Popup `pop_new_project`
 
 ## Objetivo
 
-Cadastrar uma nova tarefa.
+Permitir a criação de um novo projeto diretamente no Dashboard.
 
 ## Campos
 
-* Projeto
-* Título
-* Descrição
-* Responsável
-* Prioridade
-* Data limite
+* nome;
+* descrição;
+* status.
 
-## Workflows
+## Elementos principais
 
-WF-201
+* `inp_project_name`;
+* campo de descrição;
+* dropdown de status;
+* `btn_popup_cancel`;
+* `btn_popup_create`.
+
+## Comportamento
+
+Ao confirmar:
+
+1. Validar os campos necessários.
+2. Criar `Project`.
+3. Associar o projeto ao usuário responsável.
+4. Fechar o popup.
+5. Limpar os campos.
+
+O popup possui aproximadamente 520px de largura.
 
 ---
 
-# 12. Popup: Editar Tarefa
+# 7. Seção Minhas Tarefas Pendentes
 
 ## Objetivo
 
-Atualizar uma tarefa existente.
+Apresentar rapidamente as tarefas que exigem atenção do usuário.
+
+## Elementos
+
+* `grp_tasks_section`;
+* `grp_tasks_section_content`;
+* `grp_tasks_header`;
+* `rg_pending_tasks`;
+* `grp_tasks_empty_state`;
+* `btn_tasks_ver_todas`.
+
+## Fonte
+
+`Task`
+
+### Filtros
+
+A busca considera:
+
+* `assigned_to = CurrentUser`;
+* `archived = false`;
+* `status != done`.
+
+As tarefas são ordenadas pela `due_date`.
+
+## Ações
+
+* abrir tarefa;
+* acessar a listagem completa de tarefas.
+
+---
+
+# 8. Seção Atividades Recentes
+
+## Objetivo
+
+Exibir as atividades mais recentes relacionadas ao usuário.
+
+## Elementos
+
+* `grp_activity_section`;
+* `grp_activity_header`;
+* `btn_activity_ver_historico`;
+* `rg_recent_activity`;
+* `grp_activity_empty_state`.
+
+## Fonte
+
+`ActivityLog`
+
+A seção apresenta os últimos registros de atividade relacionados ao usuário atual.
+
+## Ações
+
+* abrir detalhes da atividade;
+* acessar o histórico completo.
+
+## Visibilidade
+
+Existem ações distintas para membros e administradores:
+
+* `btn_activity_ver_historico`;
+* botão de histórico administrativo.
+
+A disponibilidade é controlada pela role do usuário.
+
+---
+
+# 9. Popup `pop_activity_details`
+
+## Objetivo
+
+Exibir os detalhes de um registro de `ActivityLog`.
+
+## Tipo de dado
+
+`ActivityLog`
+
+## Informações exibidas
+
+* descrição;
+* ação;
+* tarefa relacionada;
+* colaborador;
+* data de criação;
+* ID da atividade.
+
+## Ações
+
+* fechar popup.
+
+## Funcionamento
+
+O popup recebe o `ActivityLog` correspondente ao item selecionado no Repeating Group através de `DisplayGroupData`.
+
+A implementação foi validada e o popup atualmente funciona conforme o padrão utilizado na página `activities`.
+
+---
+
+# 10. Página `project`
+
+## Objetivo
+
+Exibir os dados de um projeto específico e suas tarefas.
+
+A página recebe um `Project` como contexto da página.
+
+## Estrutura
+
+```text
+grp_sidebar
+└── re_sidebar
+
+grp_content
+├── grp_project_header
+└── grp_tasks_section
+```
+
+## Informações do projeto
+
+* nome;
+* descrição;
+* status;
+* proprietário;
+* data de criação.
+
+## Ações
+
+* editar projeto;
+* arquivar projeto;
+* criar tarefa.
+
+A estrutura atual utiliza `btn_edit_project` e `btn_new_task` para as principais operações.
+
+---
+
+# 11. Lista de Tarefas do Projeto
+
+## Fonte
+
+`Task`
+
+### Restrições
+
+```text
+project = CurrentPageItem
+archived = false
+```
+
+As tarefas são ordenadas pela data de criação.
+
+## Informações exibidas
+
+* título;
+* prioridade;
+* responsável;
+* status;
+* vencimento.
+
+## Ações
+
+* abrir tarefa;
+* editar tarefa;
+* criar nova tarefa.
+
+---
+
+# 12. Popup `pop_new_task`
+
+## Objetivo
+
+Criar uma nova tarefa vinculada ao projeto atual.
 
 ## Campos
 
-Mesmos da criação.
+* título;
+* descrição;
+* prioridade;
+* status;
+* responsável;
+* data limite.
 
-## Workflows
+## Regras
 
-WF-202
+A tarefa deve possuir:
+
+* projeto;
+* título;
+* responsável;
+* status.
+
+Após a criação, devem ser executados os processos de histórico e notificação definidos nos workflows do sistema.
 
 ---
 
-# 13. Tela: Notifications
+# 13. Popup `pop_edit_project`
 
 ## Objetivo
 
-Apresentar todas as notificações do usuário.
+Editar as informações de um projeto existente.
+
+## Tipo de dado
+
+`Project`
+
+## Campos
+
+* nome;
+* descrição;
+* status;
+* demais propriedades permitidas.
+
+## Permissão
+
+A edição deve respeitar as regras de privacidade e propriedade do `Project`.
+
+---
+
+# 14. Popup `pop_edit_task`
+
+## Objetivo
+
+Editar uma tarefa existente.
+
+## Tipo de dado
+
+`Task`
+
+## Campos
+
+* título;
+* descrição;
+* responsável;
+* prioridade;
+* status;
+* data limite.
+
+## Regras
+
+O comportamento de edição deve respeitar as regras de privacidade da entidade `Task`.
+
+O criador possui controle completo, enquanto o responsável possui edição limitada aos campos permitidos, principalmente status e data de conclusão.
+
+---
+
+# 15. Página `tasks`
+
+## Objetivo
+
+Apresentar a listagem completa de tarefas.
+
+## Estrutura
+
+A página possui:
+
+* header;
+* sidebar;
+* filtros;
+* campo de pesquisa;
+* Repeating Group de tarefas;
+* estado vazio;
+* popup de alteração rápida de status.
+
+## Fonte
+
+`Task`
+
+## Filtros
+
+A listagem suporta filtros combinados de:
+
+* status;
+* prioridade;
+* projeto;
+* pesquisa textual.
+
+Os filtros são aplicados diretamente na fonte de dados do Repeating Group, não sendo necessário um workflow específico para atualizar a lista.
+
+---
+
+# 16. Ações da Página `tasks`
+
+## Abrir tarefa
+
+O usuário pode acessar a página `task` através:
+
+* do título da tarefa;
+* do botão de abertura.
+
+Ambos enviam a tarefa atual como contexto da página.
+
+---
+
+## Abrir projeto
+
+O nome do projeto permite navegar para `project`, enviando o projeto relacionado à tarefa.
+
+---
+
+## Alteração rápida de status
+
+O botão `btn_task_status` abre o popup `pop_quick_status`.
+
+O workflow:
+
+1. Define a tarefa selecionada.
+2. Abre o popup.
+3. Permite selecionar novo status.
+4. Atualiza a tarefa.
+5. Registra `ActivityLog`.
+6. Cria `Notification`.
+7. Fecha o popup.
+8. Reseta os campos.
+
+---
+
+# 17. Popup `pop_quick_status`
+
+## Objetivo
+
+Permitir alteração rápida do status sem abrir a página da tarefa.
+
+## Tipo de dado
+
+`Task`
+
+## Campos
+
+* status atual;
+* novo status.
+
+## Ações
+
+* Cancelar;
+* Salvar.
+
+---
+
+# 18. Página `task`
+
+## Objetivo
+
+Exibir todas as informações de uma tarefa e permitir suas principais operações.
+
+## Informações
+
+* título;
+* descrição;
+* projeto;
+* responsável;
+* prioridade;
+* status;
+* data limite;
+* data de conclusão.
+
+## Comentários
+
+A página possui:
+
+* campo para novo comentário;
+* botão `Adicionar Comentário`;
+* Repeating Group de comentários;
+* estado vazio;
+* edição de comentário.
+
+## Histórico
+
+A página apresenta os registros de `ActivityLog` associados à tarefa.
+
+## Ações
+
+* editar tarefa;
+* excluir tarefa;
+* alterar status;
+* adicionar comentário;
+* editar comentário.
+
+---
+
+# 19. Comentários da Tarefa
+
+## Fonte
+
+`Comment`
+
+Filtro:
+
+```text
+task = CurrentPageItem
+```
+
+Os comentários são apresentados em ordem cronológica.
+
+## Adicionar comentário
+
+Ao adicionar:
+
+1. Criar `Comment`.
+2. Associar `author = CurrentUser`.
+3. Associar `task = CurrentPageItem`.
+4. Atualizar a lista.
+5. Registrar `ActivityLog`.
+6. Criar notificação quando aplicável.
+
+Esse fluxo está implementado diretamente na página `task`.
+
+---
+
+# 20. Página `activities`
+
+## Objetivo
+
+Exibir o histórico de atividades da aplicação.
+
+A página é essencialmente de consulta: não cria nem edita registros de `ActivityLog`.
+
+## Visualizações
+
+### Member
+
+`rg_activities_member`
+
+Apresenta as atividades relacionadas ao usuário atual.
+
+### Administrator
+
+`rg_activities_admin`
+
+Apresenta uma visão administrativa das atividades, permitindo consultar registros de diferentes usuários.
+
+## Campos exibidos
+
+* descrição;
+* ação;
+* tarefa;
+* usuário;
+* data.
+
+## Filtros
+
+A página possui estrutura para:
+
+* pesquisa;
+* filtros;
+* limpeza dos filtros.
+
+## Detalhes
+
+Ao clicar em uma atividade, o sistema:
+
+1. Define o `ActivityLog` selecionado como dado do popup.
+2. Exibe `pop_activity_details`.
+
+A mesma lógica existe para a visualização de membros e administradores.
+
+---
+
+# 21. Página `notifications`
+
+## Objetivo
+
+Apresentar as notificações recebidas pelo usuário autenticado.
+
+## Fonte
+
+`Notification`
+
+Filtro:
+
+```text
+recipient = CurrentUser
+```
+
+As notificações são ordenadas pela data de criação em ordem decrescente.
+
+## Elementos
+
+* título;
+* subtítulo;
+* botão `Marcar todas como lidas`;
+* `rg_notifications`;
+* cards de notificação.
+
+## Ações
+
+* marcar notificação como lida;
+* marcar todas como lidas.
+
+O botão de marcar todas como lidas é exibido apenas quando existem notificações não lidas.
+
+---
+
+# 22. Página `reset_pw`
+
+## Objetivo
+
+Permitir que o usuário defina uma nova senha após utilizar o fluxo de recuperação de senha.
 
 ## Componentes
 
-Repeating Group
+* campo de nova senha;
+* confirmação de senha;
+* botão de confirmação.
 
-Notification
+## Resultado
 
-## Campos
-
-* Ícone
-* Título
-* Mensagem
-* Data
-* Status de leitura
-
-## Workflows
-
-* Marcar como lida
+Após redefinir a senha, o usuário deve ser direcionado ao fluxo normal de autenticação.
 
 ---
 
-# 14. Tela: Profile
+# 23. Página `404`
 
 ## Objetivo
 
-Permitir atualização dos dados pessoais.
+Informar que a página ou recurso solicitado não foi encontrado.
 
-## Campos
+## Comportamento
 
-* Nome
-* Avatar
-
-## Workflows
-
-* Atualizar Perfil
+A página deve oferecer uma ação para retornar ao Dashboard.
 
 ---
 
-# 15. Componentes Reutilizáveis
+# 24. Regras de Visibilidade
 
-## Header
+## Usuário não autenticado
 
-Presente em todas as páginas privadas.
+Pode acessar:
 
-Contém:
+* `auth`;
+* fluxo de recuperação de senha;
+* `reset_pw`.
 
-* Logo
-* Menu
-* Pesquisa (evolução futura)
-* Notificações
-* Perfil
+Ao tentar acessar páginas privadas, deve ser redirecionado para `auth`.
 
 ---
 
-## Sidebar
+## Usuário autenticado
 
-Itens:
+Pode acessar:
 
-* Dashboard
-* Projects
-* Notifications
-* Profile
-
----
-
-## Project Card
-
-Exibe:
-
-* Nome
-* Cor
-* Status
-* Quantidade de tarefas
+* `index`;
+* `project`;
+* `tasks`;
+* `task`;
+* `activities`;
+* `notifications`.
 
 ---
 
-## Task Card
+## Administrador
 
-Exibe:
-
-* Título
-* Prioridade
-* Status
-* Responsável
-* Data limite
+Possui recursos adicionais relacionados ao gerenciamento e consulta administrativa, especialmente na página `activities`.
 
 ---
 
-## Comment Card
+## Membro
 
-Exibe:
-
-* Autor
-* Data
-* Comentário
+Possui acesso à própria visão de atividades e às funcionalidades operacionais disponíveis para usuários comuns.
 
 ---
 
-## Notification Card
+# 25. Responsividade
 
-Exibe:
+A aplicação utiliza layout responsivo baseado nos recursos nativos de responsive layout do Bubble.
 
-* Tipo
-* Mensagem
-* Data
+Os principais elementos devem adaptar-se conforme a largura disponível:
 
----
+### Desktop
 
-## Activity Card
+* sidebar expandida;
+* conteúdo principal em largura ampla;
+* cards distribuídos horizontalmente quando aplicável.
 
-Exibe:
+### Tablet
 
-* Usuário
-* Ação
-* Data
+* sidebar pode ser recolhida;
+* conteúdo ocupa maior proporção da tela.
 
----
+### Mobile
 
-## Dashboard Widget
+* sidebar recolhida;
+* elementos organizados verticalmente;
+* cards e formulários adaptados à largura disponível.
 
-Utilizado para indicadores.
-
----
-
-## Empty State
-
-Exibido quando não houver registros.
+A `re_sidebar` possui estado `is_collapsed` para suportar essa adaptação.
 
 ---
 
-## Confirmation Modal
+# 26. Componentes e Padrões de Interface
 
-Utilizado para:
+Os principais padrões reutilizados na aplicação são:
 
-* Exclusão
-* Arquivamento
+* `re_header`;
+* `re_sidebar`;
+* cards de projetos;
+* cards de tarefas;
+* cards de comentários;
+* cards de notificações;
+* cards de atividades;
+* estados vazios;
+* popups de confirmação e edição.
 
----
-
-# 16. Regras de Visibilidade
-
-## Login
-
-Visível apenas para usuários não autenticados.
-
----
-
-## Dashboard
-
-Visível apenas para usuários autenticados.
+A implementação deve priorizar os componentes já existentes em vez de duplicar estruturas entre páginas.
 
 ---
 
-## Projects
+# 27. Critérios de Aceitação
 
-Exibir apenas projetos do usuário autenticado.
+Uma tela será considerada funcionalmente concluída quando:
 
----
-
-## My Tasks
-
-Exibir apenas tarefas do projeto selecionado.
-
----
-
-## Notifications
-
-Exibir apenas notificações do usuário autenticado.
+* possuir os elementos previstos para sua responsabilidade;
+* carregar corretamente os dados;
+* respeitar as regras de privacidade;
+* executar os workflows associados;
+* respeitar as regras de visibilidade por autenticação e role;
+* apresentar estados vazios quando não houver registros;
+* atualizar a interface após operações persistidas;
+* funcionar adequadamente nos layouts responsivos previstos.
 
 ---
 
-## Profile
+# 28. Estado Atual do MVP
 
-Permitir edição apenas do próprio usuário.
+A estrutura atual do projeto representa uma simplificação em relação à especificação inicial.
 
----
+### Removido da estrutura atual
 
-# 17. Responsividade
+Não existem mais como páginas independentes:
 
-A aplicação deverá ser compatível com:
+* `projects`;
+* `my_tasks`;
+* `profile`.
 
-## Desktop
+Os projetos são gerenciados diretamente pelo Dashboard e pela página `project`, enquanto as tarefas possuem uma listagem central em `tasks`. A área de perfil não faz parte da estrutura atual documentada.
 
-Layout principal.
+### Removido do Dashboard
 
----
+O elemento:
 
-## Tablet
+```text
+grp_dashboard_metrics
+```
 
-Sidebar recolhida.
+foi **excluído do produto**, pois os indicadores avançados não são mais relevantes para a primeira versão do MVP.
 
----
-
-## Mobile
-
-Menu lateral substituído por menu expansível.
-
-Cards reorganizados verticalmente.
+Consequentemente, a documentação não deve considerar esse grupo como parte da interface atual.
 
 ---
 
-# 18. Critérios de Aceitação
+# 29. Considerações Finais
 
-Cada tela será considerada concluída quando:
+A interface atual do **Ozzy - Task Manager** foi simplificada para concentrar as funcionalidades essenciais do MVP.
 
-* Todos os componentes estiverem implementados.
-* Os dados forem carregados corretamente.
-* Os Workflows associados funcionarem conforme especificação.
-* As regras de visibilidade forem respeitadas.
-* Os componentes reutilizáveis forem utilizados.
-* O layout estiver responsivo.
+O `index` funciona como ponto central da aplicação, reunindo projetos, tarefas pendentes e atividades recentes. As páginas `project`, `tasks` e `task` concentram o fluxo operacional de gerenciamento, enquanto `activities` e `notifications` tratam respectivamente de histórico e comunicação interna.
 
----
-
-# 19. Considerações Finais
-
-Esta especificação representa a definição oficial da interface do **Ozzy - Task Manager**.
-
-Todas as telas deverão seguir este documento durante a implementação, garantindo consistência visual, reutilização de componentes e aderência à arquitetura definida para o projeto.
+A especificação deve ser mantida sincronizada com a implementação real do Bubble. Alterações estruturais em páginas, Repeating Groups, popups, componentes reutilizáveis ou regras de visibilidade devem ser refletidas neste documento antes da implementação de novas funcionalidades.

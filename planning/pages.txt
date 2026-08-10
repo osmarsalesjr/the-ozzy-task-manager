@@ -1,0 +1,2231 @@
+Aqui está o detalhamento completo da página 
+index
+:
+🏗️ Estrutura de Elementos
+Nível Raiz da Página
+A página possui 3 elementos de nível superior + 2 Popups:
+1. 
+Group grp_page_wrapper
+Container principal em layout de coluna. Contém dois filhos diretos:
+A. 
+Group grp_header
+Layout em linha (row), altura mínima de 64px, padding lateral de 24px
+Contém: 
+Reusable Header
+ — componente reutilizável re_header com logo, navegação e perfil do usuário
+B. 
+grp_body
+Layout em linha (row), divide a área entre sidebar e conteúdo
+Group grp_sidebar
+ → contém 
+Reusable Sidebar
+ (componente re_sidebar com estado is_collapsed para colapsar)
+grp_content
+ → área de conteúdo principal (padding 32px), com dois grupos filhos:
+↳ 
+Group grp_dashboard_content_wrapper
+Group grp_dashboard_title
+Text TitleText
+: "Bem-vindo (a), <CurrentUser's name_text>" — fonte 24px, bold
+Text DescriptionText
+: "Acompanhe seus projetos aqui." — cinza #9CA3AF
+↳ 
+Group SectionsWrapper
+Agrupa as 3 seções principais do dashboard em coluna com gap de 24px:
+Seção 1 — 
+Group grp_projects_section
+ Card com borda #E5E7EB, arredondamento 8px:
+Group grp_projects_header
+ (row, space-between)
+Group HeaderLeft
+: título "Meus Projetos" + subtítulo
+Button NewProjectBtn
+: "＋ Novo Projeto" — visível somente para administradores (conditional por role_option_user_role)
+Group grp_projects_empty_state
+: estado vazio (colapsável, oculto por padrão)
+RepeatingGroup rg_projects
+: busca projetos do CurrentUser com status active, ordenados por data de criação — grade de até 3 colunas (min-width 280px por célula), com card de projeto clicável que navega para a página de detalhe
+Seção 2 — 
+Group grp_tasks_section
+ Card com borda, arredondamento 8px:
+Group grp_tasks_section_content
+Group grp_tasks_header
+ (row, space-between)
+Group grp_tasks_header_left
+: título "Minhas Tarefas Pendentes" + subtítulo
+Button btn_tasks_ver_todas
+: estilo secundário
+RepeatingGroup rg_pending_tasks
+: busca tarefas atribuídas ao CurrentUser, não arquivadas, status ≠ done, ordenadas por due_date — máximo 3 linhas, card clicável que navega para a página de tarefas
+Group grp_tasks_empty_state
+: estado vazio colapsável
+Seção 3 — 
+Group grp_activity_section
+ Card com borda, arredondamento 8px:
+Group grp_activity_header
+ (row, space-between)
+Group grp_activity_header_left
+: título "Atividades Recentes" + subtítulo
+Button btn_activity_ver_historico
+: visível somente para members
+Botão "Ver Histórico Admin": visível somente para admins
+RepeatingGroup rg_recent_activity
+: busca os 10 últimos registros de activity_log do CurrentUser, ordenados por data — cada item abre o popup de detalhes ao clicar
+Group grp_activity_empty_state
+: visível automaticamente via conditional quando a lista de atividades retorna 0 itens
+2. 
+Popup pop_new_project
+Largura 520px, estilo standard_popup. Estrutura interna:
+Group grp_popup_header
+: título "Novo Projeto" + subtítulo descritivo
+Group grp_popup_form
+: três campos
+Input inp_project_name
+: obrigatório, placeholder "Nome do projeto"
+Input de descrição e Dropdown de status
+Group grp_popup_footer
+:
+Button btn_popup_cancel
+: cancela e fecha o popup
+Button btn_popup_create
+: cria o projeto
+3. 
+Popup pop_activity_details
+Largura 560px, tipado com 
+ActivityLog
+. Estrutura interna:
+Group PopupHeader
+: título "Detalhes da Atividade" + divisor visual
+Group PopupBody
+: exibe descrição, ação, tarefa vinculada, usuário, data e slug
+Group PopupFooter
+: botão fechar
+⚡ Workflows (12 no total)
+Workflow
+Gatilho
+Ações
+Redirect to auth if not logged in
+Page Loaded (condição: CurrentUser not logged in)
+Navega para página de autenticação
+Logout
+Custom Event "Logout"
+Log out do usuário → navega para auth
+Show New Project Popup
+Clique em 
+Button NewProjectBtn
+Exibe 
+Popup pop_new_project
+Create new project
+Clique em 
+Button btn_popup_create
+ (condição: nome não vazio)
+Cria registro 
+Project
+ → fecha popup → reseta 3 inputs
+Cancel - Hide new project popup
+Clique em 
+Button btn_popup_cancel
+Oculta 
+Popup pop_new_project
+Navigate to project detail page
+Clique no card de projeto no RG
+Navega para página de detalhe enviando o projeto
+Button btn_tasks_ver_todas is clicked
+Clique em 
+Button btn_tasks_ver_todas
+Navega para página de tarefas
+Group grp_task_card_placeholder is clicked
+Clique no card de tarefa no RG
+Navega para página de tarefas enviando a tarefa
+Show activity details popup
+Clique no card de atividade
+Define dados do popup → exibe 
+Popup pop_activity_details
+Close activity details popup
+Clique no botão fechar do popup
+Oculta 
+Popup pop_activity_details
+Workflow "Ver Histórico" (member)
+Clique em 
+Button btn_activity_ver_historico
+Navega para página de histórico
+Workflow "Ver Histórico Admin"
+Clique no botão admin
+Navega para página de histórico (admin)
+
+Aqui está a estrutura completa detalhada da página 
+project
+:
+🏗️ Estrutura de Elementos
+A página é do tipo project (CurrentPageItem) e possui layout em coluna com dois grandes blocos laterais.
+Raiz da Página — Layout em Linha (Row)
+Page: project
+ ├── Group grp_sidebar          (coluna lateral)
+ │    └── Reusable Sidebar      (reusável re_sidebar colapsável)
+ └── Group grp_content          (coluna principal, padding 32px)
+      ├── Group grp_project_header
+      └── Group grp_tasks_section
+Group grp_project_header
+Card de cabeçalho do projeto com borda, sombra e padding 32px. Layout em coluna com 4 sub-grupos:
+Group grp_project_name_row
+Text txt_project_label_name
+ — label "NOME DO PROJETO" (cinza, 11px)
+Text txt_project_name
+ — CurrentPageItem's name_text (negrito, 28px)
+Group grp_project_description_row
+Text txt_project_label_desc
+ — label "DESCRIÇÃO"
+Text txt_project_description
+ — CurrentPageItem's description_text
+Group grp_project_meta_row
+ Background cinza (#F9FAFB), layout em linha com 3 grupos de metadados:
+Group grp_meta_status
+ — Status do projeto
+Group grp_meta_owner
+ — Dono (email do usuário)
+Group grp_meta_created
+ — Data de criação
+Group grp_project_actions_row
+ Botões alinhados à direita:
+Button btn_edit_project
+ — "Editar Projeto"
+Button btn_new_task
+ — "Nova Tarefa"
+Group grp_tasks_section
+Card de tarefas com custom state "selected task" (tipo 
+Task
+). Layout em coluna com:
+Header das tarefas (
+Group grp_tasks_header_left
+ + 
+Group grp_tasks_header_right
+)
+Título "Tarefas do Projeto" + contador
+Button btn_tasks_new_task
+ — "Nova Tarefa" (ícone fa-plus)
+RepeatingGroup rg_project_tasks
+Fonte: busca tasks onde project = CurrentPageItem e archived = false, ordenado por data de criação descendente
+Cada célula contém o 
+Group grp_task_card_placeholder
+ (card com sombra e borda)
+Group grp_task_card_main
+ — coluna com textos:
+Text txt_task_title
+ — título da tarefa
+Text txt_task_priority
+ — prioridade
+Text txt_task_owner
+ — responsável
+Botão de edição e área de status/vencimento
+Popups
+Popup
+Tipo de dado
+Finalidade
+Popup pop_new_task
+—
+Criar nova tarefa
+Popup pop_edit_project
+Project
+Editar dados do projeto
+Popup pop_edit_task
+Task
+Editar tarefa selecionada (lê selected task do grp_tasks_section)
+Popup pop_new_task
+ — Form com: título (obrigatório), descrição, prioridade (Dropdown), status (Dropdown), responsável (Dropdown), data limite (DateInput) + botões "Cancelar" / "Criar Tarefa"
+Popup pop_edit_project
+ — Form com: 
+Input inp_edit_project_name
+, 
+MultiLineInput inp_edit_project_description
+, 
+Dropdown dd_edit_project_status
+ + botões "Cancelar" / "Salvar"
+Popup pop_edit_task
+ — Form com: 
+Input inp_edit_task_title
+ (pré-preenchido), 
+MultiLineInput inp_edit_task_description
+, 
+Dropdown dd_edit_task_priority
+, 
+Dropdown dd_edit_task_assignee
+, 
+DateInput inp_edit_due_date
+⚡ Workflows (12 no total)
+1. 
+Redirect logged out users to auth
+ — PageLoaded
+Condição: CurrentUser's not_logged_in
+Navigate to auth page
+ → redireciona para a página auth
+2. 
+Open edit project popup
+ — ButtonClicked no btn_edit_project
+Show pop_edit_project
+3. 
+Save project edits
+ — ButtonClicked no btn_edit_project_save
+Condição: campo nome não vazio E usuário é administrador
+Update project name, description, and status
+ — ChangeThing no CurrentPageItem
+Create activity log for project update
+ — NewThing em 
+ActivityLog
+ (ação project_updated)
+Hide pop_edit_project
+Reset inputs in pop_edit_project
+4. 
+Show new task popup (btn_new_task)
+ e 
+Show new task popup (btn_tasks_new_task)
+Ambos apenas: ShowElement no 
+Popup pop_new_task
+5. 
+Hide new task popup (btn_task_cancel)
+ — ButtonClicked no btn_task_cancel
+Hide pop_new_task popup
+6. 
+Create new task
+ — ButtonClicked no btn_task_create (Criar Tarefa)
+Condição: título não vazio
+Create new task thing
+ — NewThing em 
+Task
+ com status inicial to_do, vincula ao CurrentPageItem
+Create activity log for task creation
+ — NewThing em 
+ActivityLog
+ (ação task_created)
+Create Notification for new task
+ — NewThing em 
+Notification
+ (condicional: responsável ≠ CurrentUser)
+HideElement no pop_new_task
+ResetInputs
+DisplayListData → atualiza o 
+RepeatingGroup rg_project_tasks
+7. 
+Navigate to Task page from task card
+ — ButtonClicked no grp_task_card_placeholder
+Go to task page with current cell's task
+ — ChangePage para task, enviando ElementParent como dado
+8. 
+Edit task card: set selected task and show popup
+ — ButtonClicked no btn_edit_task_card
+Set selected task state on grp_tasks_section
+ — SetCustomState com ElementParent no estado selected task
+Show pop_edit_task popup
+9. 
+Cancel edit task
+ — ButtonClicked no btn_edit_task_cancel
+Hide edit task popup
+10. 
+Save edited task
+ — ButtonClicked no btn_edit_task_save
+Condição: título não vazio
+Update selected task fields
+ — ChangeThing no selected task (atualiza título, descrição, prioridade, responsável, data limite, status)
+Create activity log for task update
+ — NewThing em 
+ActivityLog
+ (ação task_updated)
+Create notification for assignee
+ — NewThing em 
+Notification
+ (condicional: responsável preenchido e ≠ CurrentUser)
+Hide edit task popup
+Reset edit task popup inputs
+Refresh project tasks list
+ — DisplayListData no 
+RepeatingGroup rg_project_tasks
+
+Aqui está a documentação completa da página 
+projects
+, com base nas consultas realizadas:
+📄 Página: projects
+Propriedade
+Valor
+Title
+Projetos | Ozzy
+Largura
+1200px
+Altura mínima
+900px
+Layout
+Coluna
+Elementos raiz
+3 (1 grupo wrapper + 2 popups)
+Workflows
+8
+🏗️ Hierarquia Completa de Elementos
+Page: projects (17fdcb44)
+├── Group grp_page_wrapper (ab2b0d53) [column]
+│   ├── Group grp_header (8bbf0a88) [row, 64px, padding 24px, space-between, bg surface, border-bottom]
+│   │   └── Reusable re_header (c4c41883 → c8c0e1bd)
+│   └── Group grp_body (553a24e5) [row, stretch]
+│       ├── Group grp_sidebar (9102add3) [column, fit, bg surface, border-right, padding 24px]
+│       │   └── Reusable re_sidebar (5e2b4be8 → 225b821c)
+│       └── Group grp_projects_content (87fa9404) [column, gap 24, padding 32px]
+│           ├── custom_state: selected_project_ (tipo: project)
+│           │
+│           ├── Group grp_projects_header (bTGll) [row, gap 16, space-between, 100%]
+│           │   ├── Group HeaderLeft (bTGlr) [column, gap 4, 50%]
+│           │   │   ├── Text txt_projects_title (fafdc3a7)
+│           │   │   │   "Todos os projetos" — 28px, #1A1A1A, bold
+│           │   │   └── Text txt_projects_subtitle (0a5d5b61)
+│           │   │       "Gerencie e acompanhe os projetos." — #9CA3AF
+│           │   └── Button NewProjectBtn (bTGlx) [primary, "＋ Novo Projeto", fa-plus, 48px, fit]
+│           │       └── STATE [0]: visível APENAS se CurrentUser's role = administrator
+│           │           (padrão: is_visible = false)
+│           │
+│           ├── Group grp_projects_filters (335ae319) [row, gap 12, 100%]
+│           │   └── Group ProjectFiltersContainer (e3e25e3c) [row, gap 12]
+│           │       ├── Input input_project_search (bTGtb)
+│           │       │   placeholder "Buscar por Tarefa", 224px min, 48px, não obrigatório
+│           │       ├── Dropdown dropdown_project_status (9e7c790c)
+│           │       │   data: option.project_status.*, placeholder "Todos os status"
+│           │       │   display: InjectedValue's display, 184px min, 48px
+│           │       ├── Dropdown dropdown_project_owner (c1b6cb46)
+│           │       │   data: Search(user where role = administrator)
+│           │       │   placeholder "Todos os owners", display: name_text, 184px min, 48px
+│           │       └── Button btn_clear_project_filters (86f7c545)
+│           │           "Limpar filtros" — secondary, 48px, fit
+│           │
+│           └── Group grp_projects_list (1c0be412) [column, gap 12, 100%]
+│               └── RepeatingGroup rg_projects (a73bee3c)
+│                   data: Search(project
+│                     where status = dropdown_project_status's value
+│                     AND owner = dropdown_project_owner's value
+│                     AND name_text contains input_project_search's value)
+│                   layout: coluna vertical extensível, 1 coluna fixa
+│                   row_gap: 12px, cell_min_height: 60px, 100%
+│                   └── [grp_project_card] (9414262e) — card de projeto
+│                       (detalhes do card não totalmente capturados nesta consulta)
+│
+├── Popup pop_new_project (9c14aabf) [coluna, gap 24, width 520, tipo: project]
+│   ├── Group grp_popup_header (44a29992) [coluna, gap 6]
+│   │   ├── Text (5d4e89f4) — título do popup
+│   │   └── Text (c5866e85) — subtítulo do popup
+│   ├── Group grp_popup_form (6953951b) [coluna, gap 16]
+│   │   ├── Input inp_project_name (896acc51) — nome do projeto
+│   │   ├── MultiLineInput inp_project_description (181cb9bb) — descrição
+│   │   └── Dropdown dd_project_status (50eb004f) — option.project_status.*
+│   └── Group grp_popup_footer (12f6197c) [row, gap 12, flex-end]
+│       ├── Button btn_cancel_new_project (3cac9266) — "Cancelar" (secondary)
+│       └── Button btn_create_project (2addb3f8) — "Criar Projeto" (primary)
+│
+└── Popup pop_edit_project (adddf09c) [coluna, gap 24, width 560, tipo: project]
+    data_source: grp_projects_content's selected_project_ (87fa9404)
+    ├── Group grp_edit_project_header (539f5c74) [coluna, gap 6]
+    │   ├── Text (da9f30e1) — "Editar Projeto"
+    │   └── Text (c8267cd6) — subtítulo
+    ├── Group grp_edit_project_form (5f18c9b8) [coluna, gap 16]
+    │   ├── Input inp_edit_project_name (87dcb7f7) — pré-populado com nome atual
+    │   ├── MultiLineInput inp_edit_project_description (e2f7ff39) — pré-populado com descrição atual
+    │   └── Dropdown dd_edit_project_status (6f4d4703) — option.project_status.*, pré-selecionado
+    └── Group grp_edit_project_footer (adb8c49b) [row, gap 12, flex-end]
+        ├── Button btn_cancel_edit_project (1ce006aa) — "Cancelar" (secondary)
+        └── Button btn_save_edit_project (7f150edf) — "Salvar" (primary)
+⚠️ Não capturado nesta consulta: O interior do card de projeto (
+Group grp_project_item
+) — textos, badges de status, botão de editar e navegação dentro da célula do RG. Os textos internos dos headers dos popups (5d4e89f4, c5866e85, da9f30e1, c8267cd6) também não foram detalhados.
+⚡ Workflows (8 no total)
+🔒 Autenticação / Page Load
+(Não retornado explicitamente nesta consulta, mas provável — verificar se existe um Page is loaded → redirect if not logged in similar às outras páginas do app)
+📂 Novo Projeto
+Show new project popup
+Gatilho: Clique em 
+Button NewProjectBtn
+Ação (1): 
+Show pop_new_project
+ → exibe 
+Popup pop_new_project
+Create new project
+Gatilho: Clique em 
+Button btn_save_new_project
+Condição: inp_project_name não está vazio
+Ações (5):
+Create project
+ — NewThing em 
+Project
+:
+name = inp_project_name
+description = inp_project_description
+status = dd_project_status
+owner = CurrentUser
+archived = false
+Hide pop_new_project
+Reset inp_project_name
+Reset inp_project_description
+Reset dd_project_status
+Cancel new project
+Gatilho: Clique em 
+Button btn_cancel_new_project
+Ações (4):
+Reset inp_project_name
+Reset inp_project_description
+Reset dd_project_status
+Hide pop_new_project
+✏️ Edição de Projeto
+Open edit project popup
+Gatilho: Clique em 
+Button btn_edit_project
+Ações (2):
+Set selected project state
+ — define selected_project_ em 
+grp_projects_content
+ com o projeto do card clicado
+Show edit project popup
+ → exibe 
+Popup pop_edit_project
+Save edit project
+Gatilho: Clique em 
+btn_save_edit_project
+Condição: inp_edit_project_name não está vazio
+Ações (3):
+Update project fields
+ — ChangeThing em grp_projects_content's selected_project_:
+name = inp_edit_project_name
+description = inp_edit_project_description
+status = dd_edit_project_status
+Hide edit project popup
+Reset edit project inputs
+Cancel edit project
+Gatilho: Clique em 
+btn_cancel_edit_project
+Ações (2):
+Reset edit project inputs
+Hide edit project popup
+🧭 Navegação
+Navigate to project detail page
+Gatilho: Clique em 
+Group grp_project_item
+ (card no RG)
+Ação (1): 
+Go to project page
+ → navega para 
+project
+ enviando o projeto do card
+🔍 Filtros
+Clear project filters
+Gatilho: Clique em 
+Button btn_clear_project_filters
+Ação (1): 
+Reset data
+ → limpa todos os inputs/dropdowns do grupo 
+grp_projects_filters
+📊 RepeatingGroup: rg_projects
+Propriedade
+Valor
+Data source
+Search(project where status = dropdown_project_status AND owner = dropdown_project_owner AND name_text contains input_project_search)
+Tipo
+Project
+Layout
+Coluna vertical extensível, 1 coluna fixa
+Gap entre células
+12px
+Altura mínima da célula
+60px
+Largura
+100%
+⚠️ Filtros combinados em tempo real: O RG filtra simultaneamente por status, owner e nome — todos os 3 dropdowns/inputs são aplicados na mesma query de Search, sem botão de "buscar". O botão "Limpar filtros" usa ResetGroup para zerar tudo de uma vez.
+🔑 Observações Importantes
+Botão "Novo Projeto" restrito: 
+Button NewProjectBtn
+ é invisível por padrão e aparece apenas para usuários com role = administrator (via conditional state).
+Padrão de edição via custom state: O 
+Popup pop_edit_project
+ usa data_source = grp_projects_content's selected_project_ — o projeto selecionado é armazenado no custom state selected_project_ do grupo 
+grp_projects_content
+ antes de abrir o popup.
+Workflow de criação sem activity_log ou notification: Diferentemente da página project, a criação de projeto aqui não cria registros em activity_log nem envia notificações.
+Itens não capturados nesta consulta:
+Interior do card de projeto no RG (grp_project_card / 9414262e) — textos, badges, botões internos
+Textos internos dos headers dos dois popups
+Se há um workflow Page is loaded com redirect para não autenticados
+
+Aqui está a estrutura completa e detalhada da página 
+task
+:
+🏗️ Estrutura de Elementos
+A página é do tipo 
+Task
+ (CurrentPageItem) e segue o mesmo padrão da página project: layout em linha com sidebar + área de conteúdo principal.
+Page: task (tipo: task)
+ ├── Group grp_sidebar
+ │    └── Reusable Sidebar (re_sidebar)
+ └── Group grp_content (padding 32px, column)
+      ├── Group grp_task_header     ← card principal da tarefa
+      └── Group grp_comments_section ← card de comentários
+           (custom state: "selected_comment" do tipo comment)
+📋 Card Principal — 
+grp_task_header
+Borda, sombra e padding 32px. Layout em coluna com 4 sub-grupos:
+1. 
+grp_task_title_row
+txt_task_label
+ — label "TAREFA" (cinza, 11px)
+txt_task_title
+ — CurrentPageItem's title_text (negrito, 28px)
+2. 
+grp_task_description_row
+txt_task_desc_label
+ — label "DESCRIÇÃO"
+txt_task_description
+ — CurrentPageItem's description_text
+Conditional (index 0): quando a descrição estiver vazia → cor do texto muda para cinza (#9CA3AF)
+3. 
+grp_task_meta_row
+Background #F9FAFB, borda, padding 16px, layout em linha com 5 grupos de metadados:
+Grupo
+Label
+Valor
+grp_meta_status
+Status
+CurrentPageItem's status (display uppercase)
+grp_meta_priority
+Prioridade
+CurrentPageItem's priority (display uppercase)
+grp_meta_owner
+Responsável
+CurrentPageItem's assigned_to's name
+grp_meta_project
+Projeto
+CurrentPageItem's project name (clicável → navega para a página project)
+grp_meta_due
+Data limite
+CurrentPageItem's due_date formatada
+4. 
+grp_task_actions_row
+Layout em linha, alinhado à direita, com 3 botões:
+btn_edit_task
+ — "Editar Tarefa" (ícone pencil) — sempre visível
+btn_change_status
+ — "Alterar Status" (ícone arrows-clockwise) — sempre visível
+btn_delete_task
+ — "Excluir" (ícone trash, cor destrutiva) — oculto por padrão; condicional: visível apenas para administrator
+💬 Card de Comentários — 
+Group grp_comments_section
+Custom state: selected_comment (tipo 
+Comment
+) Layout em coluna com 3 sub-grupos:
+Group grp_comments_header
+Título "Comentários" + subtítulo descritivo
+Group grp_new_comment
+MultiLineInput para digitar novo comentário
+Button btn_add_comment
+ — "Adicionar Comentário"
+Group grp_comments_list
+RepeatingGroup de 
+Comment
+ — busca onde task = CurrentPageItem e archived = no, ordenado por data de criação crescente
+Cada célula exibe:
+Nome do autor (author's name defaulting_to email)
+Data de criação formatada
+Mensagem do comentário
+Button btn_edit_comment
+ — abre popup de edição
+Button btn_delete_comment
+ — abre popup de exclusão
+🪟 Popups (5 no total)
+Popup
+Tipo de dado
+Finalidade
+Popup pop_edit_task
+Task
+ (CurrentPageItem)
+Editar todos os campos da tarefa
+Popup pop_change_status
+Task
+ (CurrentPageItem)
+Alterar somente o status
+Popup pop_delete_task
+Task
+ (CurrentPageItem)
+Confirmar arquivamento (soft delete)
+Popup pop_edit_comment
+Comment
+ (selected_comment)
+Editar comentário selecionado
+Popup pop_delete_comment
+Comment
+ (selected_comment)
+Confirmar arquivamento do comentário
+Popup pop_edit_task
+ — Form com 6 campos pré-preenchidos via ElementParent (tipo 
+Task
+):
+Input inp_edit_task_title
+, 
+MultiLineInput inp_edit_task_description
+, 
+Dropdown dd_edit_task_priority
+, 
+Dropdown dd_edit_task_status
+, 
+Dropdown dd_edit_task_assignee
+, 
+DateInput inp_edit_due_date
+Botões "Cancelar" / "Salvar Alterações"
+Popup pop_change_status
+ — Form simplificado com título "Alterar Status", subtítulo descritivo + 
+Dropdown dd_change_status
+ + botões "Cancelar" / "Salvar"
+Popup pop_delete_task
+ — Corpo com background vermelho (#FEF2F2) exibindo 3 linhas de aviso sobre o arquivamento (ação irreversível na listagem, mas dados preservados) + botões "Cancelar" / "Excluir"
+Popup pop_edit_comment
+ — 
+MultiLineInput inp_edit_comment
+ pré-preenchido + botões "Cancelar" / "Salvar"
+Popup pop_delete_comment
+ — Corpo vermelho (#FEF2F2) com aviso de arquivamento recuperável + botões "Cancelar" / "Excluir"
+⚡ Workflows (19 no total)
+1. 
+Redirect to auth if logged out
+ — PageLoaded
+Condição: CurrentUser's not_logged_in
+Navigate to auth page
+ → ChangePage para auth
+2. 
+Open change status popup
+ — ButtonClicked no txt_meta_project_value (navegação para project)
+ChangePage para a página 
+project
+, enviando CurrentPageItem's project como dado
+3. 
+Open change status popup
+ — ButtonClicked no btn_change_status
+Show pop_change_status popup
+4. Open delete task popup — ButtonClicked no btn_delete_task
+ShowElement no 
+Popup pop_delete_task
+5. 
+Cancel edit task
+ — ButtonClicked no btn_edit_cancel
+Hide edit task popup
+6. 
+Save task edits
+ — ButtonClicked no btn_edit_save
+Condição: título não vazio
+Update task fields
+ — ChangeThing no CurrentPageItem (atualiza título, descrição, prioridade, status, responsável, data limite)
+HideElement no pop_edit_task
+ResetInputs
+Create activity log for task update
+ — NewThing em 
+ActivityLog
+ (ação task_updated)
+7. 
+Cancel change status
+ — ButtonClicked no btn_status_cancel
+Hide pop_change_status popup
+8. 
+Save status change
+ — ButtonClicked no btn_status_save
+Update task status field
+ — ChangeThing no CurrentPageItem (somente status)
+HideElement no pop_change_status
+ResetInputs
+NewThing em 
+ActivityLog
+ (ação task_updated)
+NewThing em 
+Notification
+ (condicional: responsável ≠ CurrentUser)
+9. 
+Cancel delete task
+ — ButtonClicked no btn_delete_cancel
+Hide delete task popup
+10. 
+Archive task (soft delete)
+ — ButtonClicked no btn_delete_confirm
+Condição: CurrentUser is administrator
+Set task archived = true
+ — ChangeThing no CurrentPageItem (archived = true)
+Hide delete task popup
+Create activity log for archived task
+ — NewThing em 
+ActivityLog
+ (ação task_archived)
+Navigate to project page
+ — ChangePage para 
+project
+ enviando CurrentPageItem's project
+11. 
+Add comment
+ — ButtonClicked no btn_add_comment
+Condição: campo de comentário não vazio
+Create new Comment
+ — NewThing em 
+Comment
+ (mensagem + autor + tarefa)
+Reset new comment inputs
+Refresh comments list
+ — DisplayListData no RepeatingGroup de comentários
+Create ActivityLog for comment added
+ — NewThing em 
+ActivityLog
+ (ação comment_added)
+Create Notification for comment
+ — NewThing em 
+Notification
+ (condicional: responsável ≠ CurrentUser)
+12. 
+Open edit comment popup
+ — ButtonClicked no btn_edit_comment
+Set selected_comment to current cell's Comment
+ — SetCustomState no grp_comments_section (selected_comment = ElementParent)
+ShowElement no 
+Popup pop_edit_comment
+13. 
+Open delete comment popup
+ — ButtonClicked no btn_delete_comment
+Set selected_comment to current cell's Comment
+ — SetCustomState no grp_comments_section
+ShowElement no 
+Popup pop_delete_comment
+14. 
+Cancel edit comment
+ — ButtonClicked no btn_edit_comment_cancel
+Hide edit comment popup
+15. 
+Save comment edit
+ — ButtonClicked no btn_edit_comment_save
+Condição: mensagem não vazia E CurrentUser é o autor do comentário
+Update comment message
+ — ChangeThing no selected_comment (atualiza message)
+NewThing em 
+ActivityLog
+HideElement no pop_edit_comment
+ResetInputs
+DisplayListData → atualiza o RepeatingGroup de comentários
+16. 
+Cancel delete comment
+ — ButtonClicked no btn_delete_comment_cancel
+Hide delete comment popup
+17. 
+Confirm delete comment
+ — ButtonClicked no btn_delete_comment_confirm
+Condição: CurrentUser is administrator OR é o autor do comentário
+Set comment archived = true
+ — ChangeThing no selected_comment (archived = yes)
+Create activity log for archived comment
+Hide delete comment popup
+Refresh comments repeating group
+ — DisplayListData
+🔒 Regras de Permissão Notáveis
+btn_delete_task — visível somente para administrator (condicional de visibilidade)
+Workflow "Archive task" — condição de execução exige administrator
+Workflow "Confirm delete comment" — condição exige administrator ou ser o autor do comentário
+Workflow "Save comment edit" — condição exige que o CurrentUser seja o autor do comentário
+
+Aqui está a estrutura completa e detalhada da página 
+tasks
+:
+🏗️ Estrutura de Elementos
+A página exibe todas as tarefas com filtros, tabela e um popup de alteração rápida de status. Título da aba: "Minhas Tarefas | Ozzy".
+Custom states na página (nível raiz):
+selected_task (tipo 
+Task
+)
+active_status_filter (tipo option.task_status)
+active_priority_filter (tipo option.task_priority)
+Page: tasks
+ └── Group grp_page_wrapper (column)
+      ├── Group grp_header      ← barra superior com reusável de navegação
+      └── Group grp_body (row)
+           ├── Group grp_sidebar   ← sidebar reusável (re_sidebar)
+           └── Group grp_content   ← área principal (padding 32px, gap 24px)
+                ├── Group grp_tasks_page_header
+                ├── Group grp_tasks_filters
+                └── Group grp_tasks_list_container  ← custom state selected task
+📌 Área Principal — 
+Group grp_content
+1. 
+Group grp_tasks_page_header
+Text txt_tasks_title
+ — "Todas as tarefas" (H1, negrito, 28px, #1A1A1A)
+Text txt_tasks_subtitle
+ — "Gerencie e acompanhe todas as tarefas atribuídas a você." (cinza, #9CA3AF)
+2. 
+Group grp_tasks_filters
+Card branco com borda, sombra e padding 20px. Layout em linha com 4 elementos de filtro:
+Elemento
+Tipo
+Placeholder
+Fonte dos dados
+Dropdown dd_filter_status
+Dropdown
+"Todos os Status"
+option.task_status.* — exibe em uppercase
+Dropdown dd_filter_priority
+Dropdown
+"Todas as Prioridades"
+option.task_priority.* — exibe em uppercase
+Dropdown dd_filter_project
+Dropdown
+"Todos os Projetos"
+Busca projetos onde owner = CurrentUser
+Input input_task_search
+Input de texto
+"Buscar por Tarefa"
+— (busca por texto)
+Button btn_clear_filters
+Botão
+—
+"Limpar Filtros" (ícone fa-times)
+3. 
+Group grp_tasks_list_container
+Card branco com borda e sombra. Custom state: selected task (tipo 
+Task
+). Layout em coluna com 3 partes:
+A. 
+Group grp_tasks_table_header
+Cabeçalho fixo da tabela, altura 48px, borda inferior #E5E7EB. Colunas em linha:
+Texto
+Largura mínima
+Text txt_col_task
+ — "TAREFA"
+15%
+Text txt_col_project
+ — "PROJETO"
+15%
+Text txt_col_priority
+ — "PRIORIDADE"
+10%
+Text txt_col_status
+ — "STATUS"
+10%
+Text txt_col_assigned_to
+ — "RESPONSÁVEL"
+10%
+Text txt_col_due
+ — "PRAZO"
+10%
+Text txt_col_actions
+ — "AÇÕES"
+20%
+B. 
+RepeatingGroup rg_tasks
+Tipo: 
+Task
+Fonte: busca task com 4 filtros combinados:
+status = dd_filter_status (opcional)
+priority = dd_filter_priority (opcional)
+project = dd_filter_project (opcional)
+title contains input_task_search (busca de texto)
+Ordenação: due_date desc
+Layout: vertical extensível, altura mínima por célula de 72px, 8 linhas, sem separador
+Célula — 
+Group grp_task_row_placeholder
+ (tipo 
+Task
+, ElementParent) Linha de tabela com padding 24px e borda inferior #F3F4F6. Contém 8 colunas:
+Elemento
+Conteúdo
+Largura
+Text txt_placeholder_task
+título da tarefa (negrito, clicável → navega para task)
+15%
+Text txt_placeholder_project
+nome do projeto (cinza, clicável → navega para project)
+15%
+Text txt_placeholder_priority
+prioridade (display)
+10%
+Text txt_placeholder_status
+status (display)
+10%
+Text txt_placeholder_assigned_to
+nome do responsável
+10%
+Text txt_placeholder_due
+data limite formatada (dd/mm/yyyy)
+10%
+Button btn_task_status
+"Status" (ícone arrows-clockwise) → abre popup de status rápido
+12%
+Button btn_task_open
+"Abrir" → navega para página task
+10%
+C. 
+Group grp_tasks_empty_state
+Visível somente quando nenhuma tarefa é encontrada (oculto por padrão, collapse_when_hidden: true). Layout em coluna centralizado, padding 48px:
+Text txt_empty_icon
+ — emoji "📋" (40px, centralizado)
+Text txt_empty_title
+ — "Nenhuma tarefa encontrada" (18px, negrito)
+Text txt_empty_description
+ — "As tarefas aparecerão aqui quando forem criadas ou atribuídas a você." (cinza, max-width 480px)
+🪟 Popup
+Popup pop_quick_status
+Largura: 480px (máx. 560px), altura 300px
+Tipo de dado: 
+Task
+ — fonte: grp_tasks_list_container's selected task
+Layout em coluna, gap 16px, contém:
+Sub-grupo
+Conteúdo
+Group grp_popup_header
+Text txt_popup_title
+ — "Alterar Status" (18px, negrito) + 
+Text txt_popup_subtitle
+ — "Atualize rapidamente o status desta tarefa."
+Dropdown de status
+Dropdown dd_quick_status
+ pré-selecionado com status atual da selected task
+Footer
+Button btn_quick_cancel
+ — "Cancelar" + 
+Button btn_quick_save
+ — "Salvar"
+⚡ Workflows (8 no total)
+1. 
+Redirect to auth if logged out
+ — PageLoaded
+Condição: CurrentUser's not_logged_in
+Navigate to auth page
+ → ChangePage para auth
+2. 
+Clear all filter inputs
+ — ButtonClicked no btn_clear_filters
+Reset data
+ → ResetGroup no 
+Group grp_tasks_filters
+ (limpa todos os 3 dropdowns + input de busca de uma vez)
+3. 
+Text txt_placeholder_task is clicked
+ — clique no título da tarefa na linha
+Go to page task
+ → ChangePage para 
+task
+, enviando ElementParent como dado
+4. 
+Text txt_placeholder_project is clicked
+ — clique no nome do projeto na linha
+Go to page project
+ → ChangePage para 
+project
+, enviando ElementParent's project como dado
+5. 
+Button btn_task_open is clicked
+ — botão "Abrir" na linha
+Go to page task
+ → ChangePage para 
+task
+, enviando ElementParent como dado (comportamento idêntico ao clique no título)
+6. 
+Button btn_task_status is clicked
+ — botão "Status" na linha
+Set selected task on grp_tasks_list_container
+ → SetCustomState no 
+Group grp_tasks_list_container
+, estado selected task = dados do grp_task_row_placeholder atual
+Show
+ → ShowElement no 
+Popup pop_quick_status
+7. 
+Cancel quick status edit
+ — ButtonClicked no btn_quick_cancel
+Hide quick status popup
+ → HideElement no 
+Popup pop_quick_status
+8. 
+Save quick status change
+ — ButtonClicked no btn_quick_save
+Update task status
+ → ChangeThing no selected task do grp_tasks_list_container (atualiza status com o valor do dropdown do popup)
+Create activity log for status change
+ → NewThing em 
+ActivityLog
+ (ação status_changed, vinculado ao passo anterior)
+Create notification for assignee
+ → NewThing em 
+Notification
+ com mensagem dinâmica: "O status da Tarefa [título] foi alterado para [novo status]."
+Hide quick status popup
+ → HideElement
+Reset status dropdown
+ → ResetInputs
+🔍 Destaques da Página
+Filtros combinados em tempo real: os 3 dropdowns + o input de busca são todos aplicados simultaneamente na fonte do 
+RepeatingGroup rg_tasks
+ — nenhum workflow é necessário, pois são constraints dinâmicas na datasource.
+Dupla navegação: tanto o 
+Text txt_placeholder_task
+ (título clicável) quanto o 
+Button btn_task_open
+ levam à mesma página task.
+Status rápido inline: o 
+Button btn_task_status
+ permite alterar o status sem sair da listagem, com geração automática de log e notificação.
+Estado vazio: o 
+Group grp_tasks_empty_state
+ está preparado para ser exibido condicionalmente quando a lista retornar zero itens.
+
+ Aqui está a estrutura completa e detalhada da página 
+notifications
+:
+🏗️ Estrutura de Elementos
+Página sem custom states próprios. Título da aba: "Notificações | Ozzy". Layout padrão do app: wrapper em coluna com header fixo + corpo em linha com sidebar + conteúdo.
+Page: notifications
+ └── Group grp_page_wrapper (column, 100% width)
+      ├── Group grp_header       ← barra superior com reusável
+      │    └── Reusable Header (re_header)
+      └── Group grp_body (row)
+           ├── Group grp_sidebar
+           │    └── Reusable Sidebar (re_sidebar)
+           └── Group grp_content (column, padding 32px, gap 24px)
+                └── Group grp_notifications_section
+📋 Área Principal — 
+grp_notifications_section
+Card branco com borda (#E5E7EB), sombra suave e padding 24px. Layout em coluna com gap 20px. Contém 3 filhos:
+1. 
+grp_notifications_header
+Layout em linha, space-between, alinhado ao centro verticalmente. Contém 2 elementos:
+A. 
+Group grp_notifications_header_texts
+ (coluna, gap 4px)
+Text txt_notifications_title
+ — "Notificações" (18px, peso 600, #1A1A1A)
+Text txt_notifications_subtitle
+ — "Acompanhe todas as notificações recebidas pelo sistema." (13px, #9CA3AF)
+B. 
+Button btn_mark_all_read
+ — "Marcar todas como lidas" (estilo secundário)
+Oculto por padrão (is_visible: false)
+Conditional (index 0): visível quando busca notifications do CurrentUser onde is_read = false retorna count > 0 (ou seja: só aparece quando há notificações não lidas)
+2. 
+rg_notifications
+ — RepeatingGroup
+Tipo: 
+Notification
+Fonte: busca notifications onde recipient = CurrentUser, ordenado por Created Date desc (todas as notificações, sem filtro de lidas/não lidas)
+Layout: vertical extensível, gap entre células de 12px, exibe todos os itens (show_all_items: true), sem paginação
+Célula — 
+grp_notification_card
+Tipo: 
+Notification
+ (ElementParent). Card branco com borda, sombra, border_roundness: 8, padding 20px. Layout em linha com gap 16px. Contém 2 filhos:
+A. 
+grp_notification_indicator
+ Círculo de 10×10px, border_roundness: 50, cor de fundo #D1D5DB (cinza). Funciona como indicador visual de status da notificação (sem lógica de cor dinâmica presente — campo is_read não altera a cor por conditional neste elemento).
+B. 
+grp_notification_body
+ Tipo: 
+Notification
+ (ElementParent). Layout em coluna, gap 4px. Contém 2 filhos:
+B.1. 
+grp_notification_meta_row
+ Tipo: 
+Notification
+. Layout em linha, space-between, gap 8px. Contém:
+txt_notification_title
+ — ElementParent's title_text (negrito, peso 600, #1A1A1A, alinhado ao centro verticalmente)
+txt_notification_date
+ — ElementParent's Created Date formatada como dd/mm/yyyy HH (12px, #9CA3AF, fit_width)
+B.2. 
+txt_notification_message
+ElementParent's message_text — corpo da notificação (13px, #4B5563, line-height 1.5)
+3. 
+grp_notifications_empty_state
+Oculto por padrão (is_visible: false, collapse_when_hidden: true). Layout em coluna centralizado, padding 32px top/bottom e 24px lateral, gap 12px. Contém:
+txt_notifications_empty_icon
+ — "🔔" (36px, centralizado, #9CA3AF)
+txt_notifications_empty_title
+ — "Nenhuma notificação encontrada." (16px, negrito, centralizado, #1A1A1A)
+txt_notifications_empty_desc
+ — "As notificações aparecerão aqui quando houver novas atividades relacionadas aos seus projetos e tarefas." (13px, #9CA3AF, centralizado, max-width implícito)
+⚠️ Atenção: O grp_notifications_empty_state está oculto por padrão, mas não há condicional configurada para exibi-lo automaticamente quando rg_notifications retornar zero itens. Isso significa que o estado vazio nunca aparecerá a menos que uma condicional seja adicionada.
+⚡ Workflows (3 no total)
+1. 
+Redirect logged out users to auth
+ — PageLoaded
+Condição: CurrentUser's not_logged_in
+Navigate to auth page
+ → ChangePage para 
+auth
+2. 
+Mark notification as read and navigate
+ — ButtonClicked no 
+grp_notification_card
+(O card inteiro é clicável — o grupo age como botão)
+Mark notification as read
+ → ChangeThing no grp_notification_card's get_group_data — define is_read = true
+Navigate to task
+ → ChangePage para 
+task
+, enviando grp_notification_card's get_group_data's task como dado
+Condição desta action: notification's task is not empty — a navegação só ocorre se a notificação tiver uma tarefa vinculada (notificações sem tarefa apenas marcam como lida, sem redirecionar)
+3. 
+Mark all notifications as read
+ — ButtonClicked no 
+Button btn_mark_all_read
+Mark all as read
+ → ChangeListOfThings em busca de notifications do CurrentUser onde is_read = false — define is_read = true em todas de uma vez
+🔍 Destaques e Observações
+Indicador visual sem lógica de cor dinâmica: o 
+grp_notification_indicator
+ (círculo cinza) não possui conditional para mudar de cor com base no campo is_read. Notificações lidas e não lidas são visualmente idênticas no card.
+Card inteiro clicável: o 
+grp_notification_card
+ funciona como botão — ao clicar, marca como lida e redireciona para a tarefa vinculada (quando existir).
+Botão "Marcar todas como lidas" aparece condicionalmente apenas quando há notificações não lidas, usando ChangeListOfThings — uma única action atualiza todas em lote.
+Estado vazio sem condicional de exibição: o 
+grp_notifications_empty_state
+ está preparado mas nunca é exibido automaticamente, pois não há conditional vinculada ao count do rg_notifications.
+Sem filtros: diferente das páginas tasks e project, não há nenhum mecanismo de filtragem — todas as notificações do usuário são exibidas em ordem cronológica inversa.
+
+Aqui está a estrutura completa e detalhada da página 
+users
+:
+🏗️ Estrutura Geral
+Página de gerenciamento de usuários do sistema. Título da aba: "Usuários | Ozzy". Layout padrão do app em coluna com header fixo + corpo lateral.
+Page: users
+ └── Group grp_page_wrapper (column, 100% width)
+      ├── Group grp_header          ← barra superior (Reusable Header)
+      └── Group grp_body (row)
+           ├── Group grp_sidebar    ← Reusable Sidebar (definition: 225b821c)
+           └── Group grp_users_content (column, padding 32px, gap 24px)
+                │  Custom states: selected user (User), new user email (text)
+                ├── Group grp_users_header        ← título + botão "Novo Usuário"
+                ├── Group grp_users_filters       ← filtros de busca
+                └── Group grp_users_list          ← RepeatingGroup de usuários
+📌 Área Principal — 
+Group grp_users_content
+Custom states:
+selected user (tipo 
+User
+) — armazena o usuário selecionado para edição
+new user email (tipo text) — guarda o e-mail do novo usuário criado para exibir na confirmação
+1. 
+Group grp_users_header
+Layout em linha, space-between, gap 16px. Contém 2 elementos:
+A. 
+Group HeaderLeft
+ (coluna, gap 4px, min-width 50%)
+Text txt_users_title
+ — "Todos os colaboradores" (H1, negrito, #1A1A1A)
+Text txt_users_subtitle
+ — "Gerencie os usuários do sistema." (cinza, #9CA3AF)
+B. 
+Button btn_new_user
+ — "+ Novo Usuário" (estilo primário, min-height 48px)
+Oculto por padrão (is_visible: false)
+Conditional (index 0): visível quando CurrentUser's role equals administrator — exclusivo para administradores
+2. 
+Group grp_users_filters
+Layout em linha, gap 12px. Filho único: 
+Group UserFiltersContainer
+ (linha, gap 12px) com 3 elementos:
+Elemento
+Tipo
+Placeholder
+Fonte
+Input input_user_search
+Input texto
+"Buscar por nome ou e-mail..."
+— (filtra name_text no RG)
+Dropdown dropdown_user_role
+Dropdown
+"Todas as roles"
+option.user_role.*, exibe display
+Button btn_clear_user_filters
+Button
+—
+"Limpar filtros" (estilo secundário)
+3. 
+Group grp_users_list
+Contêiner em coluna, gap 12px, com o RepeatingGroup como único filho.
+RepeatingGroup rg_users
+Tipo: 
+User
+Fonte: busca users onde name_text contains input_user_search AND role = dropdown_user_role — 2 filtros combinados dinâmicos
+Layout: vertical, show_all_items: true, gap 12px entre células, altura mínima 60px por célula
+Célula — 
+Group grp_user_item
+Tipo: 
+User
+ (ElementParent). Card branco com borda #E5E7EB, border_roundness: 8, sombra suave, padding 16px. Layout relative (posicionamento absoluto interno), horiz_alignment: flex-end. Contém 2 filhos:
+A. 
+Group user_info
+ (linha, min-width 50%, altura mínima 40px, tipo 
+User
+) Layout com 3 textos posicionados com nonant_alignment:
+Elemento
+Conteúdo
+Estilo
+Text txt_user_name
+ElementParent's name_text
+700, #1A1A1A, alinhamento ab (top-left)
+Text txt_user_role
+ElementParent's role's display
+12px, #6366F1 (índigo), alinhamento ab
+Text txt_user_email
+ElementParent's email
+12px, #9CA3AF, alinhamento ab
+B. 
+Button btn_edit_user
+ — "Editar" (ícone pencil-simple, estilo secundário, min-height 36px, posição cb = bottom-center)
+Oculto por padrão (is_visible: false)
+Conditional (index 0): visível quando CurrentUser's role equals administrator — exclusivo para administradores
+🪟 Popups (3 no total)
+1. 
+Popup pop_edit_user
+Largura: 560px (máx. 560px)
+Tipo de dado: 
+User
+ — fonte: grp_users_content's selected user
+Layout em coluna, gap 24px. Contém 3 filhos:
+A. 
+Group grp_edit_user_header
+ (coluna, gap 6px)
+Text txt_edit_user_title
+ — "Editar Usuário" (20px, 700, #1A1A1A)
+Text txt_edit_user_subtitle
+ — "Atualize as informações do usuário." (14px, cinza)
+B. 
+Group grp_edit_user_form
+ (coluna, gap 16px, tipo 
+User
+)
+Fonte: grp_users_content's selected user
+Campo
+Elemento
+Pré-preenchido com
+Nome
+Input inp_edit_user_name
+ElementParent's name_text
+E-mail
+Input inp_edit_user_email
+ElementParent's email — oculto (is_visible: false)
+Perfil
+Dropdown dd_edit_user_role
+Default: option.user_role.member; fonte: option.user_role.*
+C. 
+Group grp_edit_user_footer
+ (linha, flex-end, gap 12px)
+Button btn_cancel_edit_user
+ — "Cancelar"
+Button btn_save_edit_user
+ — "Salvar alterações"
+2. 
+Popup pop_new_user
+Largura: 560px, sem tipo de dado associado
+Layout em coluna, gap 24px. Contém 3 filhos:
+A. 
+Group grp_new_user_header
+ (coluna, gap 6px)
+Text txt_new_user_title
+ — "Criar Usuário" (20px, 700)
+Text txt_new_user_subtitle
+ — subtítulo descritivo
+B. 
+Group grp_new_user_form
+ (coluna, gap 16px)
+Campo
+Elemento
+Obrigatório
+Nome
+Input inp_new_user_name
+✅ sim
+E-mail
+Input inp_new_user_email
+✅ sim
+Perfil
+Dropdown dd_new_user_role
+✅ sim — default: option.user_role.member
+C. 
+Group grp_new_user_footer
+ (linha, flex-end, gap 12px)
+Button btn_cancel_new_user
+ — "Cancelar"
+Button btn_save_new_user
+ — "Criar Usuário"
+3. 
+Popup pop_new_user_confirmation
+Largura: 560px, sem tipo de dado (lê o custom state new user email via expressão)
+Layout em coluna, gap 24px. Exibido automaticamente após criação de usuário. Contém:
+A. 
+Group grp_new_user_confirmation_header
+ — título e subtítulo de confirmação
+B. 
+Group grp_new_user_confirmation_body
+ — mensagem dinâmica: "As instruções de acesso foram enviadas para: grp_users_content's new user email"
+C. 
+Group grp_new_user_confirmation_footer
+ (linha, flex-end)
+Button btn_close_new_user_confirmation
+ — "Fechar"
+⚡ Workflows (8 no total)
+1. 
+Open edit user popup
+ — ButtonClicked no 
+Button btn_edit_user
+Set selected user state
+ → SetCustomState em 
+Group grp_users_content
+, estado selected user = grp_user_item's get_group_data
+Show edit user popup
+ → ShowElement no 
+Popup pop_edit_user
+2. 
+Open new user popup
+ — ButtonClicked no 
+Button btn_new_user
+Show new user popup
+ → ShowElement no 
+Popup pop_new_user
+3. 
+Clear user filters
+ — ButtonClicked no 
+Button btn_clear_user_filters
+Reset data
+ → ResetGroup no 
+Group grp_users_filters
+ (limpa o input de busca e o dropdown de role de uma vez)
+4. 
+Cancel edit user
+ — ButtonClicked no 
+Button btn_cancel_edit_user
+Reset edit user inputs
+ → ResetInputs
+Hide edit user popup
+ → HideElement no 
+Popup pop_edit_user
+5. 
+Save edit user
+ — ButtonClicked no 
+Button btn_save_edit_user
+Update user name, email, and role
+ → ChangeThing no grp_users_content's selected user, atualizando:
+name_text = inp_edit_user_name's value
+role = dd_edit_user_role's value(e-mail não é alterado nessa action — o campo inp_edit_user_email está oculto)
+Hide edit user popup
+ → HideElement
+Reset edit user inputs
+ → ResetInputs
+6. 
+Cancel new user
+ — ButtonClicked no 
+Button btn_cancel_new_user
+Reset new user inputs
+ → ResetInputs
+Hide new user popup
+ → HideElement no 
+Popup pop_new_user
+7. 
+Save new user
+ — ButtonClicked no 
+Button btn_save_new_user
+Condição: inp_new_user_name is not empty AND inp_new_user_email is not empty
+Create new user account
+ → CreateUserAccount
+email: inp_new_user_email's value
+password: 12345678 (senha temporária fixa — substituída pelo reset de senha)
+name_text = inp_new_user_name
+role = dd_new_user_role
+return_user_if_already_exists: false
+Save new user email to state
+ → SetCustomState em 
+Group grp_users_content
+, estado new user email = inp_new_user_email's value (para exibir na confirmação)
+Send password reset email to new user
+ → SendPasswordResetEmail
+Para: inp_new_user_email's value
+Assunto: "Bem-vindo! Defina sua senha de acesso"
+Corpo: "Olá! Você foi cadastrado no sistema Ozzy. Clique no link abaixo para definir sua senha e acessar a plataforma."
+Hide new user popup
+ → HideElement no 
+Popup pop_new_user
+Reset new user inputs
+ → ResetInputs
+Show confirmation popup
+ → ShowElement no 
+Popup pop_new_user_confirmation
+8. 
+Close new user confirmation
+ — ButtonClicked no 
+Button btn_close_new_user_confirmation
+Hide new user confirmation popup
+ → HideElement no 
+Popup pop_new_user_confirmation
+🔍 Destaques e Observações
+Controle de acesso por role: tanto o 
+Button btn_new_user
+ quanto o 
+Button btn_edit_user
+ usam conditionals baseadas em role = administrator, garantindo que apenas admins vejam as ações de gestão.
+Senha temporária exposta: o workflow 
+Save new user
+ usa a senha fixa 12345678 na ação CreateUserAccount. Isso é intencional — o SendPasswordResetEmail imediatamente em seguida envia o link para o usuário definir sua própria senha.
+E-mail não editável: o campo 
+Input inp_edit_user_email
+ existe no formulário de edição mas está oculto (is_visible: false) e não é salvo no ChangeThing. O e-mail de um usuário existente não pode ser alterado por esse fluxo.
+Sem workflow de PageLoaded / redirect para auth: diferente das outras páginas, não há um workflow de redirecionamento para usuários não autenticados visível nos resultados. Isso pode indicar que o controle de acesso é feito via Privacy Rules ou pela Sidebar reusável.
+Filtros duplos no RG: o 
+RepeatingGroup rg_users
+ aplica busca por texto (name_text contains) e filtro de role simultaneamente direto na datasource — sem nenhum workflow adicional.
+
+
+ Aqui está a documentação completa da página 
+activities
+ com base nas consultas realizadas:
+📄 Página: activities
+Propriedade
+Valor
+Title
+Atividades | Ozzy
+Largura
+1200px
+Altura mínima
+900px
+Layout
+Coluna
+Elementos raiz
+2 (1 grupo wrapper + 1 popup)
+Workflows
+5
+🏗️ Hierarquia Completa de Elementos
+Page: activities (bTGvL)
+├── Group grp_page_wrapper (bTGvQ) [column, 100%]
+│   ├── Group grp_header (bTGvR) [row, space-between, padding 24px, 64px min-height]
+│   │   └── Reusable re_header (→ c8c0e1bd)
+│   └── Group grp_body (bTGvW) [row, stretch, 100%]
+│       ├── Group grp_sidebar (bTGvX) [column]
+│       │   └── Reusable re_sidebar (→ 225b821c)
+│       └── Group grp_activities_content (bTGvc) [column]
+│           │
+│           ├── Group grp_activities_header (bTGvj?) [row, space-between]
+│           │   ├── [título e subtítulo da página]
+│           │   └── [filtros / dropdowns / search]
+│           │       ├── Dropdown action filter [option.activity_action.*]
+│           │       ├── Dropdown user filter [Search(user)]
+│           │       ├── Dropdown project filter [Search(project)]
+│           │       ├── Input search
+│           │       └── Button btn_clear_filters [secondary, "Limpar filtros"]
+│           │
+│           ├── [Tabela / header de colunas]
+│           │   ├── Col: Descrição (15% min)
+│           │   ├── Col: Ação (15% min)
+│           │   ├── Col: Tarefa (15% min)
+│           │   ├── Col: Usuário (20% min)
+│           │   └── Col: Data (15% min)
+│           │
+│           ├── RepeatingGroup rg_activities_member (bTGwN) [member view]
+│           │   type: activity_log, coluna vertical extensível
+│           │   └── Group grp_activities_row_placeholder (bTGwO) [row, 100%, 72px, border-bottom #F3F4F6]
+│           │       data_source: ElementParent (activity_log)
+│           │       ├── Text txt_placeholder_description (bTGwS)
+│           │       │   ElementParent's description_text — #111827, weight 500, 15% min
+│           │       ├── Text txt_placeholder_action (bTGwT)
+│           │       │   ElementParent's action display — #6B7280, 15% min
+│           │       ├── Text txt_placeholder_task (bTGwU)
+│           │       │   ElementParent's task's title_text — #6B7280, 15% min
+│           │       ├── Text txt_placeholder_user (bTGwY)
+│           │       │   ElementParent's user's name_text — #6B7280, 20% min
+│           │       └── Text txt_placeholder_assigned_to (bTGwf)
+│           │           ElementParent's Created Date (formatted) — #6B7280, 15% min
+│           │
+│           ├── RepeatingGroup rg_activities_admin (bTHAD) [admin view]
+│           │   ⚠️ Interior não capturado — estrutura provavelmente espelha o RG member
+│           │   type: activity_log, filtra todos os usuários (sem restrição de owner)
+│           │
+│           └── Group grp_activities_empty_state (bTGwg) [column, 100%, padding 48px]
+│               is_visible: false por padrão
+│               collapse_when_hidden: true
+│               ├── STATES:
+│               │   [0] visível se: CurrentUser's role = member
+│               │       AND rg_activities_member's count = 0
+│               │   [1] visível se: CurrentUser's role = administrator
+│               │       AND rg_activities_admin's count = 0
+│               ├── Text txt_empty_icon (bTGwk) — "📋", 40px, center
+│               ├── Text txt_empty_title (bTGwl)
+│               │   "Nenhuma atividade encontrada." — 18px, #111827, bold
+│               └── Text txt_empty_description (bTGwm)
+│                   "As atividades aparecerão aqui quando forem criadas."
+│                   #9CA3AF, max-width 480px, center
+│
+└── Popup pop_activity_details (3dd4e138) [column, gap 20, width 520, max 560px]
+    type: activity_log
+    ├── Text TitleActivityDetails (db8c026a)
+    │   "Detalhes da Atividade" — 18px, #1A1A1A, bold, weight 700
+    │
+    ├── Group GroupDescricao (db05a75d) [column, gap 4, data: ElementParent]
+    │   ├── [Label "Descrição"]
+    │   └── [Valor: popup's data's description_text]
+    │
+    ├── Group GroupAcao (c2c8c543) [column, gap 4, data: ElementParent]
+    │   ├── [Label "Ação"]
+    │   └── [Valor: popup's data's action display]
+    │
+    ├── Group GroupTarefa (ab8a9967) [column, gap 4, data: ElementParent]
+    │   ├── [Label "Tarefa"]
+    │   └── [Valor: popup's data's task's title_text]
+    │
+    ├── Group GroupColaborador (3ce49162) [column, gap 4, data: ElementParent]
+    │   ├── [Label "Colaborador"]
+    │   └── [Valor: popup's data's user's name_text]
+    │
+    ├── Group GroupCriadoEm (e3c24a16) [column, gap 4, data: ElementParent]
+    │   ├── [Label "Criado em"]
+    │   └── [Valor: popup's data's Created Date formatted]
+    │
+    ├── Group GroupIdAtividade (c33153d9) [column, gap 4, data: ElementParent]
+    │   ├── [Label "ID da Atividade"]
+    │   └── [Valor: popup's data's unique ID]
+    │
+    └── Button btn_close_activity_details (e7bdd7a2)
+        "Fechar" — primary, #4F46E5, #FFFFFF, rounded 8, 48px, padding 10/24
+⚠️ Não capturado: Os textos internos dos grupos de label/valor dentro do popup (filhos de GroupDescricao, GroupAcao, etc.) e o conteúdo completo do 
+RepeatingGroup rg_activities_admin
+ — os IDs bTGvj, bTGvX, bTGvc não foram expandidos totalmente. A estrutura de filtros (dropdowns, search, button clear) também não foi confirmada com IDs exatos.
+⚡ Workflows (5 no total)
+🔒 Autenticação
+Redirect to auth if logged out
+Gatilho: Page is loaded
+Condição: CurrentUser is not logged in
+Ação (1): 
+Navigate to auth page
+ → navega para 
+auth
+👤 Linha do RG Member → Popup
+Show activity details popup
+Gatilho: Clique em 
+Group grp_activities_row_placeholder
+ (linha do RG member)
+Ações (2):
+Display activity log in popup
+ — define data do 
+Popup pop_activity_details
+ com o dado do grp_activities_row_placeholder
+Show activity details popup
+ → exibe 
+Popup pop_activity_details
+🛡️ Linha do RG Admin → Popup
+Show activity details popup
+Gatilho: Clique em linha do RG admin (e7e6e151 — card interno do rg_admin)
+Ações (2):
+Set popup data to current activity log
+ — define data do 
+Popup pop_activity_details
+ com o dado do card admin
+Show activity details popup
+ → exibe 
+Popup pop_activity_details
+❌ Fechar Popup
+Close activity details popup
+Gatilho: Clique em 
+Button btn_close_activity_details
+ ("Fechar")
+Ação (1): 
+Hide pop_activity_details
+ → oculta 
+Popup pop_activity_details
+🔍 5º Workflow (não capturado)
+O contador da página aponta 5 workflows, mas apenas 4 foram retornados. O 5º provavelmente é o Limpar filtros (ResetGroup nos dropdowns/inputs de filtro), similar ao padrão da página projects.
+📊 Observações Importantes
+Dual RG por role: A página usa dois RepeatingGroups distintos — 
+RepeatingGroup rg_activities_member
+ para membros e 
+RepeatingGroup rg_activities_admin
+ para administradores. O empty state inteligente verifica qual RG tem count = 0 baseado no role do usuário.
+Popup sem data_source fixo: O 
+Popup pop_activity_details
+ recebe os dados via DisplayGroupData no momento do clique — não usa custom_state como padrão da página project. Há dois workflows separados fazendo isso (um para member, outro para admin).
+Estrutura de campos do popup: 6 grupos de campo (Descrição, Ação, Tarefa, Colaborador, Criado em, ID da Atividade) — cada um com label + valor, pattern coluna com gap 4.
+Empty state com lógica dupla: O 
+Group grp_activities_empty_state
+ tem dois states condicionais (index 0 para member, index 1 para admin) garantindo que o estado vazio correto apareça independente do role.
+Sem criação/edição de atividades: A página é somente leitura — exibe, filtra e detalha registros de activity_log, mas não tem workflows de criação ou edição.
+
+
+Aqui está a estrutura completa e detalhada da página 
+profile
+:
+🏗️ Estrutura Geral
+Página de perfil do usuário logado. Título da aba: "Perfil | Ozzy". Layout padrão do app em coluna com header fixo + corpo lateral. Sem custom states próprios e sem popup de 3ª parte — apenas 1 popup de confirmação de reset de senha.
+Page: profile
+ └── Group grp_page_wrapper (column, 100% width)
+      ├── Group grp_header (linha, space-between, min-height 64px)
+      │    └── Reusable Header (c8c0e1bd)
+      └── Group grp_body (linha, 100% width)
+           ├── Group grp_sidebar (coluna, min-width 220px, borda direita)
+           │    └── Reusable Sidebar (225b821c)
+           └── Group grp_profile_content (coluna, padding 32px, gap 24px)
+                ├── txt_profile_title        ← "Meu Perfil"
+                ├── txt_profile_subtitle     ← subtítulo descritivo
+                ├── grp_profile_card         ← card principal de informações
+                └── grp_security_profile     ← card de segurança / senha
+📋 Área Principal — 
+grp_profile_content
+Coluna com padding 32px e gap 24px. Contém 4 filhos diretos:
+txt_profile_title
+ — "Meu Perfil" (18px, peso 600, #1A1A1A, 100% width)
+txt_profile_subtitle
+ — "Gerencie suas informações pessoais." (13px, #9CA3AF, margin-top -16px — compensação visual em relação ao gap)
+1. 
+grp_profile_card
+ — Card de Informações Pessoais
+Card branco, borda #E5E7EB, border_roundness: 8, sombra suave (boxshadow: 0 1px 3px rgba(0,0,0,0.08)), padding 24px, gap 16px, max-width 700px. Tipo de dado: 
+User
+, fonte: CurrentUser. Contém 5 filhos em coluna:
+A. 
+AvatarRow
+Layout em linha, gap 20px, borda inferior (#E5E7EB), padding-bottom 8px. Contém 3 elementos:
+A.1. 
+ProfileAvatar
+ — elemento de avatar (círculo com inicial ou imagem do usuário)
+A.2. 
+AvatarInfo
+ (coluna, gap 4px, alinhado ao centro)
+ProfileName
+ — CurrentUser's name_text (16px, peso 600, cor via variável color_text_default)
+ProfileEmail
+ — CurrentUser's email (13px, cor via variável color_bTHBb_default)
+A.3. 
+BtnChangeAvatar
+ — "Alterar foto" (ícone camera, 13px, cor primária, borda)
+button_disabled: true — botão desabilitado, funcionalidade de troca de avatar ainda não implementada
+B. 
+FieldSectionTitle
+Texto "Informações pessoais" (13px, peso 600, cor via variável color_bTHBc_default, 100% width) — separador visual de seção dentro do card.
+C. 
+FieldName
+ — Campo de Nome
+Grupo em coluna, gap 6px. Contém:
+Label (texto "Nome")
+InputName
+ — Input pré-preenchido com CurrentUser's name_text, obrigatório, character limit 100, min-height 40px
+Texto auxiliar de validação (oculto por padrão)
+D. 
+FieldEmail
+ — Campo de E-mail
+Grupo em coluna, gap 6px. Contém:
+Label (texto "E-mail")
+InputEmail
+ — Input pré-preenchido com CurrentUser's email, formato email, character limit 200
+disabled: true e opacity: 70% — campo somente leitura; e-mail não pode ser alterado pelo usuário
+EmailHint
+ — texto auxiliar de dica abaixo do campo
+E. 
+CardFooterActions
+Layout em linha, flex-end, gap 12px, borda superior (#E5E7EB), padding-top 8px. Contém 2 botões:
+Botão
+Elemento
+Estilo
+Ação
+"Cancelar"
+BtnCancel
+Secundário
+ResetInputs
+"Salvar alterações" ✓
+BtnSave
+Primário
+MakeChangeCurrentUser
+2. 
+Group grp_security_profile
+ — Card de Segurança
+Card branco, borda #E5E7EB, border_roundness: 8, padding 24px, gap 16px, max-width 700px. Não possui tipo de dado associado. Contém 3 filhos em coluna:
+A. 
+Text txt_security_title
+ — "Segurança" (16px, 700, #1A1A1A, 100% width)
+B. 
+Text txt_security_description
+ — "Gerencie a segurança da sua conta." (13px, #9CA3AF)
+C. 
+Group grp_password_action
+ Grupo com borda #E5E7EB, border_roundness: 6, padding 16px, tipo 
+User
+, fonte CurrentUser. Layout em linha, space-between, gap 16px. Contém 2 filhos:
+C.1. 
+Group grp_password_info
+ (coluna, gap 4px, alinhado ao centro)
+Text txt_password_title
+ — "Senha" (13px, 700, #1A1A1A)
+Text txt_password_description
+ — "Redefina sua senha de acesso à conta." (12px, #9CA3AF)
+C.2. 
+Button btn_change_password
+ — "Redefinir senha" (estilo secundário, min-height 48px)
+🪟 Popup (1 no total)
+Popup grp_password_reset_confirmation
+Dimensões: 480px largura × altura automática (fit_height), max-width 560px
+Estilo: branco, borda #E5E7EB, border_roundness: 8, sombra (0 4px 16px rgba(0,0,0,0.08))
+Layout: coluna, padding 24px, gap 16px
+Sem tipo de dado associado
+Contém 3 filhos:
+A. 
+Text txt_password_reset_confirmation_title
+ — "Instruções enviadas" (16px, 700, #1A1A1A, shrink_if_less_high: true)
+B. 
+Text txt_password_reset_confirmation_description
+ — Texto do corpo da confirmação (descrição de que o e-mail foi enviado)
+C. 
+Button btn_close_password_reset_confirmation
+ — "Fechar" (ícone fa fa-times, estilo secundário, horiz_alignment: flex-end, min-height 48px)
+⚡ Workflows (4 no total)
+1. 
+Save profile changes
+ — ButtonClicked no 
+BtnSave
+Sem condição.
+Update current user's name_text
+ → MakeChangeCurrentUser
+name_text = inp_name's get_data (valor digitado no campo de nome)
+⚠️ Observação: apenas o campo name_text é salvo. O e-mail está desabilitado e não há ResetInputs nem feedback visual após salvar.
+2. 
+Cancel edit on profile - reset inputs
+ — ButtonClicked no 
+BtnCancel
+Sem condição.
+Reset profile inputs
+ → ResetInputs (restaura o campo inp_name ao valor original CurrentUser's name_text)
+3. 
+Open password reset
+ — ButtonClicked no 
+Button btn_change_password
+Sem condição.
+Send password reset email to current user
+ → SendPasswordResetEmail
+Para: CurrentUser's email (lowercase)
+Assunto: "Redefinição de Senha"
+Corpo: "Clique no link abaixo para redefinir sua senha."
+just_make_token: false — envia o e-mail real imediatamente
+Show password reset confirmation popup
+ → ShowElement no 
+Popup grp_password_reset_confirmation
+4. 
+Close password reset confirmation popup
+ — ButtonClicked no 
+Button btn_close_password_reset_confirmation
+Sem condição.
+Hide grp_password_reset_confirmation
+ → HideElement no 
+Popup grp_password_reset_confirmation
+🔍 Destaques e Observações
+Sem redirecionamento para auth: assim como a página users, não há workflow de PageLoaded para redirecionar usuários não autenticados. O controle de acesso depende de Privacy Rules ou da Reusable Sidebar/Header.
+E-mail somente leitura em dois níveis: o 
+InputEmail
+ está disabled: true e com opacity: 70% na UI, e o workflow 
+Save profile changes
+ só salva name_text — garantia dupla de que o e-mail não pode ser alterado.
+Botão "Alterar foto" desabilitado: 
+BtnChangeAvatar
+ está com button_disabled: true — a funcionalidade de upload de avatar é um placeholder ainda não implementado.
+Sem feedback pós-salvamento: o workflow 
+Save profile changes
+ não inclui ResetInputs, toast/alert de sucesso ou qualquer sinal visual de confirmação após salvar — o campo simplesmente mantém o novo valor digitado.
+Reset de senha imediato: ao clicar em "Redefinir senha", o e-mail é enviado na hora sem confirmação prévia do usuário — o popup de confirmação aparece apenas depois do envio.
+Página leve: apenas 4 workflows, 1 popup, sem custom states e sem RepeatingGroups — a menor página em complexidade do app.
+
+Aqui está a estrutura completa e detalhada do reusável 
+re_header
+:
+🏗️ Definição do Reusável
+Nome: re_header
+Tipo: CustomDefinition (Group)
+Largura padrão: 1200px, padding horizontal 24px
+Layout: linha (row), horiz_alignment: flex-start, fundo branco #FFFFFF
+Borda inferior: 1px solid #E5E7EB — separador visual do conteúdo da página
+Sem tipo de dado exposto — não recebe Data source externo; lê diretamente via CurrentUser
+Filhos diretos (4):
+re_header (row, padding 24px, border-bottom #E5E7EB)
+ ├── grp_brand         (order 1) ← logotipo clicável
+ ├── grp_header_spacer (order 5) ← espaçador flex-grow
+ ├── grp_user_info     (order 6) ← avatar + nome + sino + sair
+ └── pop_notifications (order 5) ← popup de notificações
+🔹 1. 
+Group grp_brand
+Grupo em linha, fit_width, vert_alignment: center, button_disabled: false — funciona como botão clicável (aciona workflow de navegação). Contém 1 filho:
+Text txt_app_name
+ — texto "Ozzy - Task Manager"
+18px, peso 700, cor #0C29AB (azul índigo escuro)
+vertical_centering: true, vert_alignment: center
+recognize_links: false, no_bbcode: false
+🔹 2. 
+Group grp_header_spacer
+Grupo vazio em coluna, zindex: 2, fit_height: true, sem filhos visíveis. Funciona como separador flex-grow entre a marca (esquerda) e as informações do usuário (direita), empurrando o 
+Group grp_user_info
+ para a extremidade direita.
+🔹 3. 
+Group grp_user_info
+Grupo em linha, zindex: 4, column_gap: 10, vert_alignment: center, container_horiz_alignment: flex-end. Contém 4 filhos em linha da esquerda para a direita:
+A. 
+Image img_user_avatar
+Imagem circular, border_roundness: 18, 36×36px fixos
+Fonte: CurrentUser's avatar_image
+stretch_or_rescale: zoom, alt_tag: "User avatar"
+keep_proportion_resize: false
+B. 
+Text txt_user_name
+Texto: CurrentUser's email (exibe o e-mail, não o nome — nome do elemento é "txt_user_name" mas a expressão aponta para email)
+14px (default), peso 500, cor #1A1A1A
+cut_off_content: true — truncado com ellipsis se muito longo
+vertical_centering: true, vert_alignment: center
+C. 
+Button btn_logout
+Texto: "Sair", min-height 40px, estilo secundário
+Dispara o workflow 
+Log out and navigate to auth
+D. 
+Group grp_bell_wrapper
+Grupo em linha, container_horiz_alignment: center, vert_alignment: center, estilo transparente. Contém 2 filhos sobrepostos:
+D.1. 
+Button btn_notifications
+Botão ícone: phosphor regular bell, min-height 40px, estilo secundário
+Dispara o workflow 
+Open notifications popup
+D.2. 
+Group grp_notification_badge
+ — Badge de contagem
+Círculo vermelho #EF4444, border_roundness: 10, 18×18px mínimos
+margin_top: -10, margin_left: -10 — posicionado sobreposto ao sino (canto superior esquerdo)
+collapse_when_hidden: true
+Filho: 
+Text txt_badge_count
+Texto: count de notificações não lidas do CurrentUser — busca notification where recipient_user = CurrentUser AND is_read = false
+10px, peso 700, cor #FFFFFF, centralizado
+Conditional (index 0): is_visible = false quando count de não lidas = 0 → badge se oculta automaticamente quando não há notificações pendentes
+🪟 4. 
+Popup pop_notifications
+Largura: 400px, max_width: 560px, fit_height: true
+Borda: 1px solid #E5E7EB, border_roundness: padrão popup
+Layout: coluna
+Sem tipo de dado — dados carregados internamente via CurrentUser
+Contém 3 filhos em coluna:
+pop_notifications (coluna, 400px)
+ ├── grp_notif_header  ← título + subtítulo
+ ├── grp_notif_body    ← lista scrollável de notificações (max 480px)
+ └── grp_notif_footer  ← botão "Marcar todas como lidas"
+4A. 
+Group grp_notif_header
+Coluna, padding 20px, gap 4px, borda inferior #E5E7EB. Contém:
+Text txt_notif_title
+ — "Notificações" (18px, 700, #1A1A1A)
+Text txt_notif_subtitle
+ — "Atualizações recentes" (13px, #6B7280)
+4B. 
+Group grp_notif_body
+Coluna, overflow_scroll: true, max_height: 480px, min_height: 0px. Contém 1 filho:
+RepeatingGroup rg_notifications
+Tipo: 
+Notification
+Fonte: Search(notification where recipient_user = CurrentUser, sort Created Date desc)
+Layout: vertical extensível, show_all_items: true, célula mínima 100% × 80px
+Célula — 
+Group grp_notif_cell
+Tipo 
+Notification
+, fonte ElementParent. Coluna, padding 16px, gap 8px, borda inferior #F3F4F6. Contém 2 filhos:
+Célula Top — 
+Group grp_notif_cell_top
+ Linha, gap 12px, tipo 
+Notification
+. Contém 2 filhos:
+Group grp_notif_unread_dot
+ — Indicador de não lida
+Quadrado arredondado azul #3B82F6, 8×8px mínimos, border_roundness: 4
+collapse_when_hidden: true
+Conditional (index 0): is_visible = false quando ElementParent's is_read = true → ponto azul visível apenas para notificações não lidas ✅
+Group grp_notif_text
+ — Coluna, gap 4px, tipo 
+Notification
+, fonte ElementParent
+Text txt_notif_cell_title
+ — ElementParent's title_text (peso 600, #1A1A1A)
+Text txt_notif_cell_message
+ — ElementParent's message_text (13px, #6B7280)
+Célula Bottom — 
+Group grp_notif_cell_bottom
+ Linha, space-between, padding-top 8px, tipo 
+Notification
+. Contém 2 filhos:
+Elemento
+Conteúdo
+Estilo
+Text txt_notif_cell_date
+ElementParent's Created Date (dd/mm/yyyy HH)
+11px, #9CA3AF
+Button btn_notification_open
+"Abrir"
+Secundário, min-height 28px
+4C. 
+Group grp_notif_footer
+Linha, container_horiz_alignment: center, padding 16px, fundo #F9FAFB, borda superior #E5E7EB. Contém:
+Button btn_mark_all_read
+ — "Marcar todas como lidas", estilo secundário, min-height 48px
+⚡ Workflows (5 no total)
+1. 
+Navigate to index on brand click
+ — ButtonClicked no 
+Group grp_brand
+Sem condição.
+Navigate to index page
+ → ChangePage para 
+index
+2. 
+Open notifications popup
+ — ButtonClicked no 
+Button btn_notifications
+Sem condição.
+Show notifications popup
+ → ShowElement no 
+Popup pop_notifications
+3. 
+Open notification task
+ — ButtonClicked no 
+Button btn_notification_open
+Sem condição.
+Mark notification as read
+ → ChangeThing em ElementParent (notification)
+is_read_boolean = true
+Hide notifications popup
+ → HideElement no 
+Popup pop_notifications
+Navigate to task page
+ → ChangePage para 
+task
+data_to_send = ElementParent's task_custom_task
+URL param: task_id = ElementParent's task's _id
+4. 
+Mark all notifications as read
+ — ButtonClicked no 
+Button btn_mark_all_read
+Sem condição.
+Mark all notifications as read
+ → ChangeListOfThings
+Alvo: Search(notification where recipient_user = CurrentUser AND is_read = false) — apenas as não lidas
+Campo: is_read_boolean = true
+Refresh notifications repeating group
+ → DisplayListData no 
+RepeatingGroup rg_notifications
+Nova fonte: Search(notification where recipient_user = CurrentUser, sort Created Date desc) — força atualização visual do RG após o bulk update
+5. 
+Log out and navigate to auth
+ — ButtonClicked no 
+Button btn_logout
+Sem condição.
+Log the user out
+ → LogOut
+Navigate to auth page
+ → ChangePage para 
+auth
+🔍 Destaques e Observações
+txt_user_name exibe o e-mail, não o nome: o elemento 
+Text txt_user_name
+ tem a expressão CurrentUser's email — provavelmente um erro de configuração ou escolha intencional de exibir o e-mail como identificador principal.
+Badge com collapse automático: o 
+Group grp_notification_badge
+ usa collapse_when_hidden: true + conditional que oculta quando count = 0 — desaparece completamente (sem espaço residual) quando não há notificações não lidas.
+Ponto unread bem implementado no header: ao contrário da página 
+notifications
+ (onde o indicador de não lida não tinha conditional), o 
+Group grp_notif_unread_dot
+ aqui tem a conditional correta: oculto quando is_read = true.
+Refresh manual após "Marcar todas como lidas": o workflow usa DisplayListData para forçar re-render do RG após o ChangeListOfThings — necessário porque o Bubble não atualiza automaticamente o RG após bulk updates via ChangeListOfThings sem um trigger de refresh explícito.
+Popup sem workflow de fechamento externo: o 
+Popup pop_notifications
+ é fechado apenas quando o usuário clica em "Abrir" numa notificação (que fecha + navega). Não há botão "X" de fechar ou clique fora para dismiss.
+Brand clicável via Group: o 
+Group grp_brand
+ usa button_disabled: false em um Group para capturar clique — padrão válido no Bubble quando se quer um grupo inteiro como alvo de clique sem usar um Button element.
+
+
+ Aqui está a estrutura completa e detalhada do reusável 
+re_sidebar
+:
+🏗️ Definição do Reusável
+Nome: re_sidebar
+Tipo: CustomDefinition (Group)
+Fundo: #F3F4F6 (cinza muito claro)
+Layout: coluna (column), container_vert_alignment: flex-start
+Padding: 24px (top/bottom) × 16px (left/right)
+Largura mínima: 220px (expandida) → 64px (colapsada)
+Borda direita: 1px solid #E5E7EB — separador do conteúdo da página
+Custom State: is_collapsed (boolean) — controla o estado expandido/colapsado de toda a sidebar
+Conditional (index 0): quando is_collapsed = true → padding_left: 8, padding_right: 8, min_width_css: 64px
+re_sidebar (coluna, 220px → 64px, bg #F3F4F6, border-right #E5E7EB)
+ ├── grp_sidebar_header  (order 1) ← botão toggle ☰
+ ├── grp_sidebar_nav     (order 2) ← menu de navegação (7 botões)
+ ├── grp_sidebar_spacer  (order 3) ← espaçador flex-grow
+ └── grp_sidebar_user    (order 6) ← avatar + e-mail do usuário logado
+🔹 1. 
+Group grp_sidebar_header
+Linha, fit_height, min_width: 100%, padding_bottom: 16px, horiz_alignment: stretch. Contém 1 filho:
+Conditional (index 0): quando is_collapsed = true → container_horiz_alignment: center (centraliza o botão quando colapsada)
+Filho:
+Button btn_sidebar_toggle
+ — Botão "☰"
+Estilo secundário, fit_width, fit_height, min_height: 40px, vert_alignment: center
+Dispara o workflow 
+Toggle sidebar collapsed state
+🔹 2. 
+Group grp_sidebar_nav
+Coluna, row_gap: 8, fit_height, min_width: 100%, horiz_alignment: stretch, estilo transparente. Contém 7 botões de navegação em ordem:
+Todos os botões de navegação compartilham o mesmo padrão de Conditional (index 0): quando is_collapsed = true → button_type: icon + button_horiz_alignment: center (oculta o label, exibe apenas o ícone centralizado).
+Order
+Elemento
+Label
+Ícone
+Estilo
+Destino
+1
+Button btn_nav_dashboard
+"Dashboard"
+fa fa-home
+Primário ⭐
+index
+2
+Button btn_nav_projetos
+"Projetos"
+fa fa-folder
+Secundário
+projects
+4
+Button btn_nav_notificacoes
+"Notificações"
+fa fa-bell
+Secundário
+notifications
+5
+Button btn_nav_tarefas
+"Tarefas"
+phosphor regular check-square
+Secundário
+tasks
+6
+Button btn_nav_activities
+"Atividades"
+phosphor regular files
+Secundário
+activities
+7
+Button btn_nav_users
+"Colaboradores"
+fa fa-users
+Secundário
+users
+8
+Button btn_nav_perfil
+"Perfil"
+fa fa-user
+Secundário
+profile
+⚠️ Observação: falta o order 3 — havia provavelmente um item removido. O 
+Button btn_nav_dashboard
+ usa estilo primário (todos os demais usam secundário), mas não há indicador de página ativa dinâmico — o botão Dashboard sempre aparece como "ativo" visualmente, independentemente da página atual.
+🔹 3. 
+Group grp_sidebar_spacer
+Grupo vazio em coluna, min_width: 100%, horiz_alignment: stretch, estilo transparente. Funciona como espaçador flex-grow que empurra o 
+Group grp_sidebar_user
+ para a base da sidebar.
+🔹 4. 
+Group grp_sidebar_user
+Linha, column_gap: 10, fit_height, padding_top: 12, min_width: 100%, horiz_alignment: stretch, borda superior #E5E7EB. Contém 2 filhos em linha:
+Conditional (index 0): quando is_collapsed = true → column_gap: 0, container_horiz_alignment: center (centraliza apenas o avatar, ocultando o e-mail)
+A. 
+Image img_sidebar_avatar
+Imagem 32×32px, use_aspect_ratio: true, stretch_or_rescale: zoom
+Fonte: CurrentUser's avatar_image
+alt_tag: "User avatar", estilo standard_image
+Sem border_roundness declarado — provavelmente quadrado ou via CSS do estilo aplicado
+B. 
+Text txt_sidebar_username
+Texto: CurrentUser's email (defaulting_to CurrentUser's email) (redundante — defaulting_to aponta para a mesma expressão; fallback sem efeito prático)
+13px, #1A1A1A, cut_off_content: true — truncado com ellipsis
+fit_width, fit_height, vert_alignment: center
+Conditional (index 0): quando is_collapsed = true → is_visible: false (some completamente ao colapsar)
+⚡ Workflows (8 no total)
+1. 
+Toggle sidebar collapsed state
+ — ButtonClicked no 
+Button btn_sidebar_toggle
+Sem condição.
+Toggle is_collapsed_ custom state
+ → SetCustomState
+Elemento: 
+re_sidebar
+, estado is_collapsed
+Valor: re_sidebar's is_collapsed is false (inverte o estado atual: se falso → verdadeiro; se verdadeiro → falso — toggle real)
+2. 
+Navigate to dashboard (index)
+ — ButtonClicked no 
+Button btn_nav_dashboard
+Go to index page
+ → ChangePage para 
+index
+3. 
+Navigate to projects
+ — ButtonClicked no 
+Button btn_nav_projetos
+Navigate to index page
+ → ChangePage para 
+projects
+⚠️ Observação: a action foi nomeada "Navigate to index page" mas navega para 
+projects
+ — nome da action está incorreto.
+4. 
+Navigate to notifications
+ — ButtonClicked no 
+Button btn_nav_notificacoes
+Navigate to notifications page
+ → ChangePage para 
+notifications
+5. 
+Navigate to tasks
+ — ButtonClicked no 
+Button btn_nav_tarefas
+Navigate to task page (placeholder)
+ → ChangePage para 
+tasks
+⚠️ Observação: a action foi nomeada "Navigate to task page (placeholder)" — nome desatualizado, pois navega corretamente para 
+tasks
+ (plural).
+6. 
+Button btn_nav_activities is clicked
+ — ButtonClicked no 
+Button btn_nav_activities
+Go to page activities
+ → ChangePage para 
+activities
+⚠️ Observação: workflow sem nome personalizado ("ButtonClicked") e action sem nome — itens mais recentes, adicionados sem renomear.
+7. 
+Button btn_nav_users is clicked
+ — ButtonClicked no 
+Button btn_nav_users
+Go to page users
+ → ChangePage para 
+users
+⚠️ Observação: idem — workflow e action sem nome personalizado.
+8. 
+Navigate to profile
+ — ButtonClicked no 
+Button btn_nav_perfil
+Navigate to profile page (pending)
+ → ChangePage para 
+profile
+⚠️ Observação: a action foi nomeada "Navigate to profile page (pending)" — nome sugere que era um trabalho em progresso; a navegação está funcional.
+🔍 Destaques e Observações
+Toggle de colapso bem implementado: o SetCustomState usa is_collapsed is false como valor, o que inverte o boolean atual — padrão correto de toggle no Bubble sem precisar de lógica condicional separada.
+Sidebar completamente responsiva ao estado: todos os 7 botões de nav, o header e o grp_sidebar_user têm conditionals que reagem ao is_collapsed, adaptando layout, padding e visibilidade de forma coordenada.
+Indicador de página ativa ausente: o 
+Button btn_nav_dashboard
+ está hardcoded com estilo primário — não há lógica dinâmica que destaque o botão da página atual. Isso significa que "Dashboard" sempre parece selecionado, mesmo em outras páginas.
+defaulting_to redundante no e-mail: a expressão do 
+Text txt_sidebar_username
+ usa CurrentUser's email defaulting_to CurrentUser's email — o fallback aponta para o mesmo campo, sem efeito prático.
+Nomes de actions desatualizados: as actions de 
+Navigate to projects
+, 
+Navigate to tasks
+ e 
+Navigate to profile
+ têm nomes herdados de versões anteriores do desenvolvimento.
+Workflows e actions sem nome nos botões 
+Button btn_nav_activities
+ e 
+Button btn_nav_users
+ — adicionados mais recentemente sem seguir a convenção de nomenclatura do projeto.
+grp_sidebar_nav com tipo de dado task desnecessário: o grupo de navegação tem group_type: task configurado, mas não usa dados de tarefas — provavelmente configuração residual de uma alteração anterior.

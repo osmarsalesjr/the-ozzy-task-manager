@@ -454,11 +454,7 @@ Atualização Da Interface
 
 O Workflow de cadastro:
 
-1. Valida Os Dados Informados.
-2. Cria O User Nativo Do Bubble.
-3. Define `role = Member`.
-4. Realiza O Login.
-5. Redireciona Para O Dashboard.
+1. Apenas um administrador pode cadastrar um novo usuário.
 
 ### Login
 
@@ -969,3 +965,14 @@ A arquitetura combina:
 A solução foi projetada para atender aos requisitos do MVP mantendo simplicidade, baixo acoplamento e possibilidade de evolução.
 
 Toda alteração futura deverá considerar o impacto conjunto sobre **Dados, Workflows, Privacy Rules, Interface, Testes e Documentação**, garantindo que a evolução da aplicação permaneça consistente com a arquitetura definida.
+
+---
+
+# 13. Artefatos Gerados
+
+Acesse os materiais, documentos e artefatos desenvolvidos durante o planejamento e implementação do projeto.
+
+* Link de Teste do Portal Ozzy - Task Manager, ![clique aqui.](https://ozzy-task-manager.bubbleapps.io/version-test/)
+* Repositório Git de Artefatos, ![clique aqui](https://github.com/osmarsalesjr/the-ozzy-task-manager)
+* Vídeo de Demonstração, ![clique aqui.]()
+* 

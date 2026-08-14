@@ -974,5 +974,5 @@ Acesse os materiais, documentos e artefatos desenvolvidos durante o planejamento
 
 * Link de Teste do Portal Ozzy - Task Manager, ![clique aqui.](https://ozzy-task-manager.bubbleapps.io/version-test/)
 * Repositório Git de Artefatos, ![clique aqui](https://github.com/osmarsalesjr/the-ozzy-task-manager)
-* Vídeo de Demonstração, ![clique aqui.]()
+* Vídeo de Demonstração, ![clique aqui.](https://www.youtube.com/watch?v=HEYiv8Ck1nY)
 * 

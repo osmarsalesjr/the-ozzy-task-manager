@@ -136,9 +136,8 @@ As principais entidades são:
 * Notification.
 * ActivityLog.
 
-Diagrama de Entidade-Relacionamento
-
-![Diagrama ER](https://1drv.ms/i/c/c417189aeed0f9d1/IQTAOF3Bbh_wT6E1LdCvyY83AX4s4qY2M0GSLonffBo0-gU?width=1036&height=524)
+Diagrama de Entidade-Relacionamento:
+![Diagrama ER](https://1drv.ms/i/c/c417189aeed0f9d1/IQSANSXIxVd1S7vhaPoIpDDNAU57B4fc8PrczIZJtQG_T78?width=1036&height=524)
 
 ---
 
@@ -972,7 +971,7 @@ Toda alteração futura deverá considerar o impacto conjunto sobre **Dados, Wor
 
 Acesse os materiais, documentos e artefatos desenvolvidos durante o planejamento e implementação do projeto.
 
-* Link de Teste do Portal Ozzy - Task Manager, ![clique aqui.](https://ozzy-task-manager.bubbleapps.io/version-test/)
-* Repositório Git de Artefatos, ![clique aqui](https://github.com/osmarsalesjr/the-ozzy-task-manager)
-* Vídeo de Demonstração, ![clique aqui.]()
+* Link de Teste do Portal Ozzy - Task Manager, [clique aqui.](https://ozzy-task-manager.bubbleapps.io/version-test/)
+* Repositório Git de Artefatos, [clique aqui.](https://github.com/osmarsalesjr/the-ozzy-task-manager)
+* Vídeo de Demonstração, [clique aqui.](https://www.youtube.com/watch?v=HEYiv8Ck1nY)
 * 
